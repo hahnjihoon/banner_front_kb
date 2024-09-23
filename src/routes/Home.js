@@ -19,7 +19,7 @@ export default function Home() {
       <br></br>
       <br></br>
 
-      <div>test2</div>
+      <div>배너 생성</div>
       <div>
         <button onClick={() => handleNavigate("/banner")}>bannerpage go</button>
       </div>
