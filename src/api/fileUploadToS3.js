@@ -19,7 +19,8 @@ export async function fileUploadToS3(formData) {
 export async function fileUploadAllTag(htmlContent, outputFileName) {
   console.log("최종 저장할 데이터::", outputFileName);
 
-  const response = await fetch(`http://192.168.0.137:8080/save`, {
+  const response = await fetch(`http://43.201.19.68:8081/save`, {
+    // const response = await fetch(`http://192.168.0.137:8081/save`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -40,7 +41,8 @@ export async function fileUploadAllTag(htmlContent, outputFileName) {
 }
 
 export async function fileUploadSelectedImg(imageUrl) {
-  const response = await fetch(`http://192.168.0.137:8080/save/saveselecte`, {
+  const response = await fetch(`http://43.201.19.68:8081/save/saveselecte`, {
+    // const response = await fetch(`http://192.168.0.137:8081/save/saveselecte`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json"

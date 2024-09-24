@@ -155,6 +155,15 @@ export default function Banner() {
       const fileName = `banner${hours}${minutes}${seconds}.png`;
 
       await fileUploadAllTag(dataURL, fileName);
+
+      //서버저장후 다시불러오지않고 바로 data로 로컬에 저장 = 서버에 저장로직 지워도됨
+      const link = document.createElement("a");
+      link.href = dataURL; // dataURL을 href로 설정
+      link.download = fileName; // 다운로드할 파일명
+      document.body.appendChild(link);
+      link.click(); // 링크 클릭하여 다운로드 실행
+      document.body.removeChild(link); // 링크 제거
+
       setIsCaptured(false);
     } catch (error) {
       console.error("이미지 업로드 중 오류 발생:", error);
