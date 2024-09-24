@@ -114,7 +114,7 @@ export default function Banner() {
       if (selectedImageUrl) {
         const response = await fileUploadSelectedImg(selectedImageUrl);
 
-        console.log("서버 응답:", response);
+        // console.log("서버 응답:", response);
         setBase64Image(response.base64Image);
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
