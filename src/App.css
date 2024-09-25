@@ -1,38 +1,111 @@
-.App {
-  text-align: center;
+.wrap {
+  background-color: #f1edea;
+  padding: 1px 50px 50px;
+  box-sizing: border-box;
+  width: 100vh;
+  margin: 0 auto;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.container {
+  background-color: #fff;
+  border-top: 1px solid #977a5e;
+  border-bottom: 1px solid #977a5e;
+  margin-top: 5px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.title {
+  font-size: 20px;
+  color: #977a5e;
+  margin: 20px 0 0;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.sub_title {
+  height: 30px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
+.box {
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  border-bottom: 1px solid #dfd3c9;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+label {
+  width: 200px;
+  padding: 8px 0;
+  display: inline-block;
+  border-right: 1px solid #dfd3c9;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+input,
+select {
+  width: 150px;
+  height: 25px;
+  border: none;
+  margin-left: 20px;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+.w100 {
+  width: 100%;
+}
+
+span {
+  font-size: 13px;
+  color: #977a5e;
+}
+
+.box textarea {
+  border: none;
+  margin: 0 20px;
+}
+
+.form_box {
+  display: flex;
+  margin-bottom: 20px;
+  align-items: center;
+  background-color: #fff;
+  border-bottom: 1px solid #977a5e;
+}
+
+.form_box form {
+  display: flex;
+  border-left: 1px solid #dfd3c9;
+}
+
+.form_box label {
+  border-right: none;
+}
+
+.form_box textarea {
+  width: 300px;
+  margin: 5px 15px;
+}
+
+.form_box button {
+  background-color: #dfd3c9;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 15px 0;
+}
+
+.btn {
+  width: 100%;
+  color: #fff;
+  margin-top: 15px;
+  background-color: #977a5e;
+  border: none;
+  padding: 15px 50px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
 }
