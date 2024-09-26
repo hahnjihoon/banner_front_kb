@@ -26,6 +26,7 @@ export default function Banner() {
 
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false); //ai 이미지생성중
+  const [saving, setSaving] = useState(false); // 배너완성 저장중
   const [imageUrls, setImageUrls] = useState([]); //ai 생성된 이미지들
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
 
@@ -33,6 +34,12 @@ export default function Banner() {
   // const [imageSrc, setImageSrc] = useState(null);
   const [isCaptured, setIsCaptured] = useState(false); //이기술의핵심 졸라중요
   // 로컬에 저장시키고 그때만 ture로 바꿈
+
+  const [imageFile, setImageFile] = useState(null);
+  const [prompt2, setPrompt2] = useState("");
+  const [imagePreview, setImagePreview] = useState(null);
+  const [editedImageUrl, setEditedImageUrl] = useState(null);
+  const [editGenerating, setEditGenerating] = useState(false);
 
   const bannerStyle = {
     width: `${width}px`,
@@ -107,6 +114,7 @@ export default function Banner() {
   const saveCustomBanner = async () => {
     try {
       console.log("저장 실행 시작::", selectedImageUrl);
+      setSaving(true);
 
       let width = 0;
       let height = 0;
@@ -166,8 +174,10 @@ export default function Banner() {
       document.body.removeChild(link); // 링크 제거
 
       setIsCaptured(false);
+      setSaving(false);
     } catch (error) {
       console.error("이미지 업로드 중 오류 발생:", error);
+      setSaving(false);
     }
   };
 
@@ -191,6 +201,53 @@ export default function Banner() {
     setImageHeight(130);
     setImagePositionX(310);
     setImagePositionY(18);
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]; // 파일을 선택
+    setImageFile(file); // 파일 상태 저장
+    if (file) {
+      // 선택한 파일을 미리보기 위해 URL 생성
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl); // 미리보기 상태에 저장
+    }
+  };
+
+  // const handlePromptChange = (e) => {
+  //   setPrompt2(e.target.value);
+  // };
+
+  const editImage = async () => {
+    console.log("편집시작");
+    setEditGenerating(true);
+    console.log(prompt2);
+    console.log(imageFile);
+    const formData = new FormData();
+    formData.append("image", imageFile); // 이미지 파일 추가
+    formData.append("prompt", prompt2); // 프롬프트 추가 (예: "해를 파란색으로 바꿔줘")
+    formData.append("n", 1); // 생성할 이미지 개수 (1개)
+    formData.append("size", "256x256"); // 이미지 크기
+
+    try {
+      const response = await fetch("https://api.openai.com/v1/images/edits", {
+        method: "POST",
+        headers: {
+          Authorization: apikey
+          // 'Content-Type': 'multipart/form-data'는 FormData 사용 시 자동으로 설정
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+
+      console.log("리턴받은url", data.data[0].url);
+      setEditedImageUrl(data.data[0].url);
+
+      setEditGenerating(false);
+    } catch (error) {
+      console.error("Error:", error);
+      setEditGenerating(false);
+    }
   };
 
   useEffect(() => {
@@ -225,8 +282,8 @@ export default function Banner() {
   // console.log("현재이미지url :: ", imageUrl);
   // console.log("현재isCaptured :: ", isCaptured);
   // console.log("프롬프트 :: ", prompt);
-  console.log("프롬프트 :: ", alignItems);
-  console.log("프롬프트 :: ", fontFamily);
+  // console.log("프롬프트 :: ", alignItems);
+  // console.log("프롬프트 :: ", fontFamily);
 
   return (
     <div className="wrap">
@@ -456,12 +513,56 @@ export default function Banner() {
           />
         )}
       </div>
-      <button className="btn" onClick={saveCustomBanner}>
-        Save
+      <button className="btn" disabled={saving} onClick={saveCustomBanner}>
+        {saving ? "Saving Now..." : "Save"}
       </button>
       <button className="btn" onClick={example1set}>
         sample 1
       </button>
+      <br></br>
+      <br></br>
+      <br></br>
+      <div>------------------------------------------------------------</div>
+      <br></br>
+      <br></br>
+      <br></br>
+      <div>
+        <input type="file" onChange={handleImageChange} />
+        {imagePreview && (
+          <div>
+            <h3>선택한이미지</h3>
+            <img src={imagePreview} alt="preview" />
+          </div>
+        )}
+        <input
+          type="text"
+          placeholder="프롬프트를 입력하세요 (예: 해를 파란색으로 바꿔줘)"
+          value={prompt2}
+          onChange={(e) => setPrompt2(e.target.value)}
+        />
+        <button onClick={editImage} disabled={editGenerating}>
+          {editGenerating ? "편집 중..." : "Edit Image"}
+        </button>
+
+        {/* 편집된 이미지가 있을 경우 화면에 출력 */}
+        {editedImageUrl && (
+          <div>
+            <h3>편집된 이미지:</h3>
+            <img
+              src={editedImageUrl}
+              alt="Edited"
+              style={{
+                maxWidth: "150px",
+                maxHeight: "150px",
+                cursor: "pointer",
+                border:
+                  selectedImageUrl === editedImageUrl ? "3px solid red" : "none"
+              }}
+              onClick={() => handleImageSelection(editedImageUrl)}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
