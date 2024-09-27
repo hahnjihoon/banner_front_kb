@@ -23,6 +23,19 @@ export default function Home() {
       <div>
         <button onClick={() => handleNavigate("/banner")}>bannerpage go</button>
       </div>
+
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+      <br></br>
+
+      <div>
+        <div style={{ backgroundColor: "pink" }}>
+          <img src={`${process.env.PUBLIC_URL}/image39.png`} alt="Logo" />
+        </div>
+      </div>
     </div>
   );
 }
