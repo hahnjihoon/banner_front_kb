@@ -1,9 +1,8 @@
 .wrap {
-  background-color: #f1edea;
+  border-right: 1px dotted #977a5e;
   padding: 1px 50px 50px;
   box-sizing: border-box;
   width: 100vh;
-  margin: 0 auto;
 }
 
 .container {
@@ -49,7 +48,6 @@ select {
   border: none;
   margin-left: 20px;
   cursor: pointer;
-  margin-right: 20px;
 }
 
 .w100 {
@@ -68,15 +66,13 @@ span {
 
 .form_box {
   display: flex;
-  margin-bottom: 20px;
   align-items: center;
   background-color: #fff;
-  border-bottom: 1px solid #977a5e;
+  border-bottom: 1px solid #dfd3c9;
 }
 
 .form_box form {
   display: flex;
-  border-left: 1px solid #dfd3c9;
 }
 
 .form_box label {
@@ -97,6 +93,10 @@ span {
   margin: 15px 5px;
 }
 
+.form_cont {
+  border-left: 1px solid #dfd3c9;
+}
+
 .btn {
   width: 100%;
   color: #fff;
@@ -108,4 +108,14 @@ span {
   cursor: pointer;
   font-weight: bold;
   font-size: 18px;
+}
+
+.banner_wrap {
+  position: fixed;
+  top: 40%;
+  left: 50%;
+}
+
+.ml20 {
+  margin-left: 20px;
 }
