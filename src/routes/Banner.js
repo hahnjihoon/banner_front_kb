@@ -171,12 +171,14 @@ export default function Banner() {
       let height = 0;
 
       // selectedImageUrl이 있을 때만 fileUploadSelectedImg 실행
-      if (selectedImageUrl) {
+      if (selectedImageUrl && selectedImageUrl.startsWith("blob:")) {
+        console.log("이미저장됨");
+      } else if (selectedImageUrl) {
+        // Blob URL이 아닌 정상 URL 처리
         const response = await fileUploadSelectedImg(selectedImageUrl);
 
-        // console.log('서버 응답:', response);
-        setBase64Image(response.base64Image);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        console.log("서버 응답:", response);
+        setBase64Image(response.base64Image); // 서버에서 반환된 Base64 이미지 설정
       }
 
       setIsCaptured(true);
