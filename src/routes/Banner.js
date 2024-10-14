@@ -462,6 +462,7 @@ export default function Banner() {
                 <option value="Georgia">Georgia</option>
                 <option value="Times New Roman">Times New Roman</option>
                 <option value="Verdana">Verdana</option>
+                <option value="KBFGDisplay">KBFG Display</option>
               </select>
             </div>
           </div>
