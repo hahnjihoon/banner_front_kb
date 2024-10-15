@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import html2canvas from "html2canvas";
 import { fileUploadSelectedImg, fileUploadAllTag } from "../api/fileUploadToS3";
+import Draggable from "react-draggable";
+// import { ResizableBox } from "react-resizable";
 
 const apikey = process.env.REACT_APP_APIKEY;
 
@@ -491,7 +493,9 @@ export default function Banner() {
               <input
                 type="number"
                 value={imagePositionX}
-                onChange={(e) => setImagePositionX(e.target.value)}
+                onChange={(e) =>
+                  setImagePositionX(parseFloat(e.target.value) || 0)
+                }
               />
               <span>( px )</span>
             </div>
@@ -500,7 +504,9 @@ export default function Banner() {
               <input
                 type="number"
                 value={imagePositionY}
-                onChange={(e) => setImagePositionY(e.target.value)}
+                onChange={(e) =>
+                  setImagePositionY(parseFloat(e.target.value) || 0)
+                }
               />
               <span>( px )</span>
             </div>
@@ -622,11 +628,23 @@ export default function Banner() {
             </div>
           )}
           {imageUrl && (
-            <img
-              src={isCaptured ? imageUrl : selectedImageUrl}
-              alt="wrong img addr"
-              style={imageStyle}
-            />
+            <Draggable
+              position={{ x: imagePositionX, y: imagePositionY }}
+              onDrag={(e, data) => {
+                setImagePositionX(data.x);
+                setImagePositionY(data.y);
+              }}
+              onStop={(e, data) => {
+                setImagePositionX(data.x);
+                setImagePositionY(data.y);
+              }}
+            >
+              <img
+                src={isCaptured ? imageUrl : selectedImageUrl}
+                alt="wrong img addr"
+                style={imageStyle}
+              />
+            </Draggable>
           )}
         </div>
         <button className="btn" disabled={saving} onClick={saveCustomBanner}>
