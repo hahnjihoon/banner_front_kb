@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import html2canvas from "html2canvas";
-import { fileUploadSelectedImg, fileUploadAllTag } from "../api/fileUploadToS3";
+import { fileUploadSelectedImg } from "../api/fileUploadToS3";
 import Draggable from "react-draggable";
 // import { ResizableBox } from "react-resizable";
 
@@ -17,6 +17,14 @@ const imagePaths = [
   "/image60.png",
   "/image67.png"
   // 이 배열에 public 폴더에 있는 이미지 경로를 모두 추가하세요
+];
+
+const logoPaths = [
+  "/logo1.png",
+  "/logo2.png",
+  "/logo3.png",
+  "/logo4.png",
+  "/logo5.png"
 ];
 
 export default function Banner() {
@@ -36,8 +44,8 @@ export default function Banner() {
   const [imageUrl, setImageUrl] = useState(""); //이게 test2의 imageSrc
   const [imageWidth, setImageWidth] = useState(100);
   const [imageHeight, setImageHeight] = useState(100);
-  const [imagePositionX, setImagePositionX] = useState(0);
-  const [imagePositionY, setImagePositionY] = useState(0);
+  const [imagePositionX, setImagePositionX] = useState(500);
+  const [imagePositionY, setImagePositionY] = useState(25);
 
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false); //ai 이미지생성중
@@ -55,6 +63,21 @@ export default function Banner() {
   const [imagePreview, setImagePreview] = useState(null);
   const [editedImageUrl, setEditedImageUrl] = useState(null);
   const [editGenerating, setEditGenerating] = useState(false);
+
+  const [characterImg, setcharacterImg] = useState("");
+  const [logoImg, setLogoImg] = useState("");
+  const [characterUrl, setcharacterUrl] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+
+  const [characterWidth, setCharacterWidth] = useState(120);
+  const [characterHeight, setCharacterHeight] = useState(120);
+  const [characterPositionX, setCharacterPositionX] = useState(380);
+  const [characterPositionY, setCharacterPositionY] = useState(25);
+
+  const [logoWidth, setLogoWidth] = useState(120);
+  const [logoHeight, setLogoHeight] = useState(120);
+  const [logoPositionX, setLogoPositionX] = useState(0);
+  const [logoPositionY, setLogoPositionY] = useState(0);
 
   const bannerStyle = {
     width: `${width}px`,
@@ -88,6 +111,22 @@ export default function Banner() {
     left: `${imagePositionX}px`,
     width: `${imageWidth}px`,
     height: `${imageHeight}px`
+  };
+
+  const characterStyle = {
+    position: "absolute",
+    top: `${characterPositionY}px`,
+    left: `${characterPositionX}px`,
+    width: `${characterWidth}px`,
+    height: `${characterHeight}px`
+  };
+
+  const logoStyle = {
+    position: "absolute",
+    top: `${logoPositionY}px`,
+    left: `${logoPositionX}px`,
+    width: `${logoWidth}px`,
+    height: `${logoHeight}px`
   };
 
   const changeKoreanToEnglish = async (param) => {
@@ -179,10 +218,18 @@ export default function Banner() {
 
   const selecteCharacter = (url) => {
     console.log("선택한url:: ", url);
-    setSelectedImageUrl(url);
-    setImageUrl(url);
-    setImageHeight("300");
-    setImageWidth("150");
+    // setSelectedImageUrl(url);
+    // setImageUrl(url);
+    // setImageHeight("300");
+    // setImageWidth("150");
+    setcharacterImg(url);
+    setcharacterUrl(url);
+  };
+
+  const selectLogo = (url) => {
+    console.log("로고:: ", url);
+    setLogoImg(url);
+    setLogoUrl(url);
   };
 
   //이미지 경로가 로컬인지 파악하는함수
@@ -256,6 +303,10 @@ export default function Banner() {
 
       // selectedImageUrl이 있을 때만 fileUploadSelectedImg 실행
       if (selectedImageUrl && selectedImageUrl.startsWith("blob:")) {
+        const response = await fileUploadSelectedImg(selectedImageUrl);
+
+        console.log("서버 응답:", response);
+        setBase64Image(response.base64Image);
         console.log("이미저장됨");
       } else if (selectedImageUrl) {
         // Blob URL이 아닌 정상 URL 처리
@@ -300,7 +351,7 @@ export default function Banner() {
       const seconds = String(now.getSeconds()).padStart(2, "0");
       const fileName = `banner${hours}${minutes}${seconds}.png`;
 
-      await fileUploadAllTag(dataURL, fileName);
+      // await fileUploadAllTag(dataURL, fileName);
 
       //서버저장후 다시불러오지않고 바로 data로 로컬에 저장 = 서버에 저장로직 지워도됨
       const link = document.createElement("a");
@@ -335,6 +386,10 @@ export default function Banner() {
 
     setImageUrl("");
     setSelectedImageUrl("");
+    setcharacterUrl("");
+    setcharacterImg("");
+    setLogoUrl("");
+    setLogoImg("");
     setImageWidth(100);
     setImageHeight(100);
     setImagePositionX(0);
@@ -358,10 +413,22 @@ export default function Banner() {
 
     setImageUrl("");
     setSelectedImageUrl("");
+    setcharacterUrl("");
+    setcharacterImg("");
+    setLogoUrl("");
+    setLogoImg("");
     setImageWidth(130);
     setImageHeight(130);
     setImagePositionX(310);
     setImagePositionY(18);
+    setCharacterWidth(100);
+    setCharacterHeight(100);
+    setCharacterPositionX(300);
+    setCharacterPositionY(10);
+    setLogoWidth(80);
+    setLogoHeight(80);
+    setLogoPositionX(0);
+    setLogoPositionY(0);
   };
 
   const example1set = async () => {
@@ -380,11 +447,23 @@ export default function Banner() {
     setFontFamily("KBFGDisplay");
     setPrompt("");
 
-    setImageUrl(process.env.PUBLIC_URL + "/image48.png");
-    setImageWidth(150);
-    setImageHeight(270);
-    setImagePositionX(590);
-    setImagePositionY(125);
+    setImageUrl();
+    setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
+    setcharacterImg(process.env.PUBLIC_URL + "/image48.png");
+    setLogoUrl(process.env.PUBLIC_URL + "/logo4.png");
+    setLogoImg(process.env.PUBLIC_URL + "/logo4.png");
+    setCharacterWidth(150);
+    setCharacterHeight(270);
+    setCharacterPositionX(590);
+    setCharacterPositionY(125);
+    setImageWidth(130);
+    setImageHeight(130);
+    setImagePositionX(310);
+    setImagePositionY(18);
+    setLogoWidth(120);
+    setLogoHeight(120);
+    setLogoPositionX(0);
+    setLogoPositionY(0);
   };
 
   const example2set = async () => {
@@ -392,7 +471,7 @@ export default function Banner() {
     setWidth(950);
     setHeight(600);
     setPadding(75);
-    setBackgroundColor("#FDEFF4");
+    setBackgroundColor("#FFCC00");
     setTitle("내 보험 찾기");
     setSubtitle("잊고 있던 내 보험 찾고\n이마트 상품권도 받자");
     setTitleFontSize(62);
@@ -403,11 +482,23 @@ export default function Banner() {
     setFontFamily("KBFGDisplay");
     setPrompt("");
 
-    setImageUrl(process.env.PUBLIC_URL + "/image48.png");
-    setImageWidth(145);
-    setImageHeight(257);
-    setImagePositionX(667);
-    setImagePositionY(305);
+    setImageUrl("");
+    setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
+    setcharacterImg(process.env.PUBLIC_URL + "/image48.png");
+    setLogoUrl(process.env.PUBLIC_URL + "/logo4.png");
+    setLogoImg(process.env.PUBLIC_URL + "/logo4.png");
+    setImageWidth(200);
+    setImageHeight(200);
+    setImagePositionX(400);
+    setImagePositionY(10);
+    setCharacterWidth(145);
+    setCharacterHeight(257);
+    setCharacterPositionX(667);
+    setCharacterPositionY(305);
+    setLogoWidth(120);
+    setLogoHeight(120);
+    setLogoPositionX(60);
+    setLogoPositionY(85);
   };
 
   const example3set = async () => {
@@ -425,11 +516,23 @@ export default function Banner() {
     setFontFamily("KBFGDisplay");
     setPrompt("");
 
-    setImageUrl(process.env.PUBLIC_URL + "/image48.png");
-    setImageWidth(70);
-    setImageHeight(110);
-    setImagePositionX(310);
-    setImagePositionY(18);
+    setImageUrl("");
+    setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
+    setcharacterImg(process.env.PUBLIC_URL + "/image48.png");
+    setLogoUrl(process.env.PUBLIC_URL + "/logo5.png");
+    setLogoImg(process.env.PUBLIC_URL + "/logo5.png");
+    setImageWidth(100);
+    setImageHeight(100);
+    setImagePositionX(0);
+    setImagePositionY(0);
+    setCharacterWidth(70);
+    setCharacterHeight(110);
+    setCharacterPositionX(245);
+    setCharacterPositionY(30);
+    setLogoWidth(100);
+    setLogoHeight(70);
+    setLogoPositionX(320);
+    setLogoPositionY(45);
   };
 
   const example4set = async () => {
@@ -447,11 +550,23 @@ export default function Banner() {
     setFontFamily("KBFGDisplay");
     setPrompt("");
 
-    setImageUrl(process.env.PUBLIC_URL + "/image48.png");
-    setImageWidth(84);
-    setImageHeight(160);
-    setImagePositionX(752);
-    setImagePositionY(78);
+    setImageUrl("");
+    setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
+    setcharacterImg(process.env.PUBLIC_URL + "/image48.png");
+    setLogoUrl("");
+    setLogoImg("");
+    setImageWidth(100);
+    setImageHeight(100);
+    setImagePositionX(400);
+    setImagePositionY(10);
+    setCharacterWidth(84);
+    setCharacterHeight(160);
+    setCharacterPositionX(752);
+    setCharacterPositionY(78);
+    setLogoWidth(100);
+    setLogoHeight(100);
+    setLogoPositionX(0);
+    setLogoPositionY(0);
   };
 
   const example5set = async () => {
@@ -469,11 +584,23 @@ export default function Banner() {
     setFontFamily("KBFGDisplay");
     setPrompt("");
 
-    setImageUrl(process.env.PUBLIC_URL + "/image48.png");
-    setImageWidth(84);
-    setImageHeight(160);
-    setImagePositionX(395);
-    setImagePositionY(339);
+    setImageUrl("");
+    setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
+    setcharacterImg(process.env.PUBLIC_URL + "/image48.png");
+    setLogoUrl("");
+    setLogoImg("");
+    setImageWidth(100);
+    setImageHeight(100);
+    setImagePositionX(390);
+    setImagePositionY(200);
+    setCharacterWidth(84);
+    setCharacterHeight(160);
+    setCharacterPositionX(395);
+    setCharacterPositionY(339);
+    setLogoWidth(120);
+    setLogoHeight(80);
+    setLogoPositionX(33);
+    setLogoPositionY(110);
   };
 
   const handleImageChange = (e) => {
@@ -562,7 +689,18 @@ export default function Banner() {
     setSelectedImageUrl("");
   };
 
-  // console.log("현재이미지url :: ", imageUrl);
+  const deletecharacterButton = async () => {
+    setcharacterUrl("");
+    setcharacterImg("");
+  };
+
+  const deletelogoButton = async () => {
+    setLogoUrl("");
+    setLogoImg("");
+  };
+
+  console.log("현재이미지url :: ", imageUrl);
+  console.log("현재selectedurl :: ", selectedImageUrl);
   // console.log("현재isCaptured :: ", isCaptured);
   // console.log("프롬프트 :: ", prompt);
   // console.log("프롬프트 :: ", alignItems);
@@ -692,104 +830,181 @@ export default function Banner() {
             </div>
           </div>
           <br></br>
-
-          <div className="container">
-            <div className="box">
-              <label>Image Width</label>
-              <input
-                type="number"
-                value={imageWidth}
-                onChange={(e) => setImageWidth(e.target.value)}
-              />
-              <span>( px )</span>
-            </div>
-            <div className="box">
-              <label>Image Height</label>
-              <input
-                type="number"
-                value={imageHeight}
-                onChange={(e) => setImageHeight(e.target.value)}
-              />
-              <span>( px )</span>
-            </div>
-            <div className="box">
-              <label>Image Position X</label>
-              <input
-                type="number"
-                value={imagePositionX}
-                onChange={(e) =>
-                  setImagePositionX(parseFloat(e.target.value) || 0)
-                }
-              />
-              <span>( px )</span>
-            </div>
-            <div className="box">
-              <label>Image Position Y</label>
-              <input
-                type="number"
-                value={imagePositionY}
-                onChange={(e) =>
-                  setImagePositionY(parseFloat(e.target.value) || 0)
-                }
-              />
-              <span>( px )</span>
-            </div>
-            <div className="box" style={{ borderBottom: "none" }}>
-              <label>Image URL</label>
-              <input
-                className="w100"
-                type="text"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-              />
-            </div>
-          </div>
         </form>
         <h2 className="title">Image</h2>
         <br></br>
         <div className="form_box">
           <label>Basic Image</label>
           <div className="form_cont">
-            <form
-              onSubmit={makeImageFromAi}
-              style={{ display: "flex", flexDirection: "column" }}
-            >
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-                {imagePaths.map((path, index) => (
-                  <div key={index} style={{ flex: "1 1 calc(33.33% - 10px)" }}>
-                    <img
-                      src={process.env.PUBLIC_URL + path}
-                      alt={`error ${index + 1}`}
-                      style={{
-                        width: "100px",
-                        height: "100px",
-                        cursor: "pointer",
-                        border:
-                          selectedImageUrl === process.env.PUBLIC_URL + path
-                            ? "3px solid red"
-                            : "none"
-                      }}
-                      onClick={() =>
-                        selecteCharacter(process.env.PUBLIC_URL + path)
-                      }
-                    />
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: "flex" }}>
-                {" "}
-                {/* 버튼들을 가로로 배치 */}
-                <button
-                  type="button"
-                  disabled={loading}
-                  onClick={() => deleteContentButton()}
-                >
-                  Delete
-                </button>
-              </div>
-            </form>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+              {imagePaths.map((path, index) => (
+                <div key={index} style={{ flex: "1 1 calc(33.33% - 10px)" }}>
+                  <img
+                    src={process.env.PUBLIC_URL + path}
+                    alt={`error ${index + 1}`}
+                    style={{
+                      width: "100px",
+                      height: "100px",
+                      cursor: "pointer",
+                      border:
+                        characterUrl === process.env.PUBLIC_URL + path
+                          ? "3px solid red"
+                          : "none"
+                    }}
+                    onClick={() =>
+                      selecteCharacter(process.env.PUBLIC_URL + path)
+                    }
+                  />
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex" }}>
+              {" "}
+              {/* 버튼들을 가로로 배치 */}
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => deletecharacterButton()}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
+        <div className="container">
+          <div className="box">
+            <label>Character Width</label>
+            <input
+              type="number"
+              value={characterWidth}
+              onChange={(e) => setCharacterWidth(e.target.value)}
+            />
+            <span>( px )</span>
+          </div>
+          <div className="box">
+            <label>Character Height</label>
+            <input
+              type="number"
+              value={characterHeight}
+              onChange={(e) => setCharacterHeight(e.target.value)}
+            />
+            <span>( px )</span>
+          </div>
+          <div className="box">
+            <label>Character Position X</label>
+            <input
+              type="number"
+              value={characterPositionX}
+              onChange={(e) =>
+                setCharacterPositionX(parseFloat(e.target.value) || 0)
+              }
+            />
+            <span>( px )</span>
+          </div>
+          <div className="box">
+            <label>Character Position Y</label>
+            <input
+              type="number"
+              value={characterPositionY}
+              onChange={(e) =>
+                setCharacterPositionY(parseFloat(e.target.value) || 0)
+              }
+            />
+            <span>( px )</span>
+          </div>
+        </div>
+        <br></br>
+        <br></br>
+
+        <div className="form_box">
+          <label>Logo Image</label>
+          <div className="form_cont">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+              {logoPaths.map((path, index) => (
+                <div
+                  key={index}
+                  style={{
+                    flex: "1 1 calc(33.33% - 10px)",
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                  }}
+                >
+                  <img
+                    src={process.env.PUBLIC_URL + path}
+                    alt={`error ${index + 1}`}
+                    style={{
+                      maxWidth: "100%", // 컨테이너의 너비를 넘지 않도록 설정
+                      maxHeight: "100%", // 컨테이너의 높이를 넘지 않도록 설정
+                      cursor: "pointer",
+                      objectFit: "contain", // 이미지가 원본 비율을 유지하며 잘리지 않도록 설정
+                      border:
+                        logoUrl === process.env.PUBLIC_URL + path
+                          ? "3px solid red"
+                          : "1px solid black" // 선택되지 않았을 때는 얇은 검정 테두리
+                    }}
+                    onClick={() => selectLogo(process.env.PUBLIC_URL + path)}
+                  />
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", marginTop: "10px" }}>
+              {/* 버튼들을 가로로 배치 */}
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => deletelogoButton()}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="container">
+          <div className="box">
+            <label>Logo Width</label>
+            <input
+              type="number"
+              value={logoWidth}
+              onChange={(e) => setLogoWidth(e.target.value)}
+            />
+            <span>( px )</span>
+          </div>
+          <div className="box">
+            <label>Logo Height</label>
+            <input
+              type="number"
+              value={logoHeight}
+              onChange={(e) => setLogoHeight(e.target.value)}
+            />
+            <span>( px )</span>
+          </div>
+          <div className="box">
+            <label>Logo Position X</label>
+            <input
+              type="number"
+              value={logoPositionX}
+              onChange={(e) =>
+                setLogoPositionX(parseFloat(e.target.value) || 0)
+              }
+            />
+            <span>( px )</span>
+          </div>
+          <div className="box">
+            <label>Logo Position Y</label>
+            <input
+              type="number"
+              value={logoPositionY}
+              onChange={(e) =>
+                setLogoPositionY(parseFloat(e.target.value) || 0)
+              }
+            />
+            <span>( px )</span>
+          </div>
+        </div>
+        <br></br>
+        <br></br>
+
         <div className="form_box">
           <label>Generated Images</label>
           <div className="form_cont">
@@ -904,6 +1119,58 @@ export default function Banner() {
 
           {/* 편집된 이미지가 있을 경우 화면에 출력 */}
         </div>
+
+        <div className="container">
+          <div className="box">
+            <label>Image Width</label>
+            <input
+              type="number"
+              value={imageWidth}
+              onChange={(e) => setImageWidth(e.target.value)}
+            />
+            <span>( px )</span>
+          </div>
+          <div className="box">
+            <label>Image Height</label>
+            <input
+              type="number"
+              value={imageHeight}
+              onChange={(e) => setImageHeight(e.target.value)}
+            />
+            <span>( px )</span>
+          </div>
+          <div className="box">
+            <label>Image Position X</label>
+            <input
+              type="number"
+              value={imagePositionX}
+              onChange={(e) =>
+                setImagePositionX(parseFloat(e.target.value) || 0)
+              }
+            />
+            <span>( px )</span>
+          </div>
+          <div className="box">
+            <label>Image Position Y</label>
+            <input
+              type="number"
+              value={imagePositionY}
+              onChange={(e) =>
+                setImagePositionY(parseFloat(e.target.value) || 0)
+              }
+            />
+            <span>( px )</span>
+          </div>
+          <div className="box" style={{ borderBottom: "none" }}>
+            <label>Image URL</label>
+            <input
+              className="w100"
+              type="text"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+            />
+          </div>
+        </div>
       </div>
       {/* Banner output */}
       <div className="banner_wrap">
@@ -925,6 +1192,24 @@ export default function Banner() {
                 src={isCaptured ? imageUrl : selectedImageUrl}
                 alt="wrong img addr"
                 style={imageStyle}
+              />
+            </Draggable>
+          )}
+          {characterUrl && (
+            <Draggable>
+              <img
+                src={isCaptured ? characterUrl : characterImg}
+                alt="wrong img addr"
+                style={characterStyle}
+              />
+            </Draggable>
+          )}
+          {logoUrl && (
+            <Draggable>
+              <img
+                src={isCaptured ? logoUrl : logoImg}
+                alt="wrong img addr"
+                style={logoStyle}
               />
             </Draggable>
           )}
