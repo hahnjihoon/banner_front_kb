@@ -69,10 +69,10 @@ export default function Banner() {
   const [characterUrl, setcharacterUrl] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
 
-  const [characterWidth, setCharacterWidth] = useState(120);
-  const [characterHeight, setCharacterHeight] = useState(120);
-  const [characterPositionX, setCharacterPositionX] = useState(380);
-  const [characterPositionY, setCharacterPositionY] = useState(25);
+  const [characterWidth, setCharacterWidth] = useState(130);
+  const [characterHeight, setCharacterHeight] = useState(130);
+  const [characterPositionX, setCharacterPositionX] = useState(450);
+  const [characterPositionY, setCharacterPositionY] = useState(22);
 
   const [logoWidth, setLogoWidth] = useState(120);
   const [logoHeight, setLogoHeight] = useState(120);
@@ -836,7 +836,14 @@ export default function Banner() {
         <div className="form_box">
           <label>Basic Image</label>
           <div className="form_cont">
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: "10px",
+                padding: "10px"
+              }}
+            >
               {imagePaths.map((path, index) => (
                 <div key={index} style={{ flex: "1 1 calc(33.33% - 10px)" }}>
                   <img
@@ -849,7 +856,7 @@ export default function Banner() {
                       border:
                         characterUrl === process.env.PUBLIC_URL + path
                           ? "3px solid red"
-                          : "none"
+                          : "1px solid black"
                     }}
                     onClick={() =>
                       selecteCharacter(process.env.PUBLIC_URL + path)
@@ -919,29 +926,39 @@ export default function Banner() {
         <div className="form_box">
           <label>Logo Image</label>
           <div className="form_cont">
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 200px)", // 2열로 설정
+                gap: "10px", // 이미지 사이의 간격
+                justifyContent: "center", // 가운데 정렬
+                padding: "10px"
+              }}
+            >
               {logoPaths.map((path, index) => (
                 <div
                   key={index}
                   style={{
-                    flex: "1 1 calc(33.33% - 10px)",
+                    width: "150px", // 이미지 컨테이너의 너비 고정
+                    height: "150px", // 이미지 컨테이너의 높이 고정
                     display: "flex",
                     justifyContent: "center",
-                    alignItems: "center"
+                    alignItems: "center",
+                    border:
+                      logoUrl === process.env.PUBLIC_URL + path
+                        ? "3px solid red"
+                        : "1px solid black",
+                    cursor: "pointer"
                   }}
+                  onClick={() => selectLogo(process.env.PUBLIC_URL + path)}
                 >
                   <img
                     src={process.env.PUBLIC_URL + path}
                     alt={`error ${index + 1}`}
                     style={{
-                      maxWidth: "100%", // 컨테이너의 너비를 넘지 않도록 설정
-                      maxHeight: "100%", // 컨테이너의 높이를 넘지 않도록 설정
-                      cursor: "pointer",
-                      objectFit: "contain", // 이미지가 원본 비율을 유지하며 잘리지 않도록 설정
-                      border:
-                        logoUrl === process.env.PUBLIC_URL + path
-                          ? "3px solid red"
-                          : "1px solid black" // 선택되지 않았을 때는 얇은 검정 테두리
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                      objectFit: "contain"
                     }}
                     onClick={() => selectLogo(process.env.PUBLIC_URL + path)}
                   />
