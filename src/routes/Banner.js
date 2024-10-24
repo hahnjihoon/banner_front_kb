@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import html2canvas from "html2canvas";
 import { fileUploadSelectedImg } from "../api/fileUploadToS3";
 import Draggable from "react-draggable";
-// import { ResizableBox } from "react-resizable";
+import { Resizable } from "re-resizable";
 
 const apikey = process.env.REACT_APP_APIKEY;
 
@@ -16,7 +16,6 @@ const imagePaths = [
   "/image49.png",
   "/image60.png",
   "/image67.png"
-  // 이 배열에 public 폴더에 있는 이미지 경로를 모두 추가하세요
 ];
 
 const logoPaths = [
@@ -30,63 +29,66 @@ const logoPaths = [
 export default function Banner() {
   const [width, setWidth] = useState(600);
   const [height, setHeight] = useState(150);
-  const [padding, setPadding] = useState(10);
-  const [alignItems, setalignItems] = useState("center");
+  const [backgroundColor, setBackgroundColor] = useState("#ffe157");
+  // const [padding, setPadding] = useState(10);
+
+  // const [alignItems, setalignItems] = useState("center");
   const [title, setTitle] = useState("This is a banner!");
   const [titleFontSize, setTitleFontSize] = useState(16);
-  const [subtitle, setSubtitle] = useState("");
-  const [subtitleFontSize, setSubtitleFontSize] = useState(12);
-  const [backgroundColor, setBackgroundColor] = useState("#ffe157");
   const [fontFamily, setFontFamily] = useState("KBFGDisplay");
   const [titleColor, setTitleColor] = useState("#000000");
-  const [subtitleColor, setSubtitleColor] = useState("#555555");
 
-  const [imageUrl, setImageUrl] = useState(""); //이게 test2의 imageSrc
-  const [imageWidth, setImageWidth] = useState(100);
-  const [imageHeight, setImageHeight] = useState(100);
-  const [imagePositionX, setImagePositionX] = useState(500);
-  const [imagePositionY, setImagePositionY] = useState(25);
+  const [titles, setTitles] = useState([title]);
+  const dragRefs = useRef([]);
+  const [clickedTitleIndex, setClickedTitleIndex] = useState(null);
 
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false); //ai 이미지생성중
   const [saving, setSaving] = useState(false); // 배너완성 저장중
   const [imageUrls, setImageUrls] = useState([]); //ai 생성된 이미지들
-  const [selectedImageUrl, setSelectedImageUrl] = useState("");
 
   const [base64Image, setBase64Image] = useState(null);
-  // const [imageSrc, setImageSrc] = useState(null);
   const [isCaptured, setIsCaptured] = useState(false); //이기술의핵심 졸라중요
   // 로컬에 저장시키고 그때만 ture로 바꿈
-
   const [imageFile, setImageFile] = useState(null);
   const [prompt2, setPrompt2] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [editedImageUrl, setEditedImageUrl] = useState(null);
   const [editGenerating, setEditGenerating] = useState(false);
 
-  const [characterImg, setcharacterImg] = useState("");
-  const [logoImg, setLogoImg] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [selectedImageUrl, setSelectedImageUrl] = useState("");
+  // const [imageWidth, setImageWidth] = useState(100);
+  // const [imageHeight, setImageHeight] = useState(100);
+  // const [imagePositionX, setImagePositionX] = useState(500);
+  // const [imagePositionY, setImagePositionY] = useState(25);
+  const [imageSize, setImageSize] = useState({ width: 100, height: 100 });
+  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
+  const [isImageSelected, setIsImageSelected] = useState(false);
+  const imageRef = useRef(null); // 로고 이미지를 참조하기 위한 ref
+
   const [characterUrl, setcharacterUrl] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
-
-  const [characterWidth, setCharacterWidth] = useState(130);
-  const [characterHeight, setCharacterHeight] = useState(130);
-  const [characterPositionX, setCharacterPositionX] = useState(450);
-  const [characterPositionY, setCharacterPositionY] = useState(22);
-
-  const [logoWidth, setLogoWidth] = useState(120);
-  const [logoHeight, setLogoHeight] = useState(120);
-  const [logoPositionX, setLogoPositionX] = useState(0);
-  const [logoPositionY, setLogoPositionY] = useState(0);
+  const [characterSize, setCharacterSize] = useState({
+    width: 100,
+    height: 100
+  });
+  const [characterPosition, setCharacterPosition] = useState({ x: 0, y: 0 });
+  const [isCharacterSelected, setIsCharacterSelected] = useState(false);
+  const characterRef = useRef(null);
+  const [logoSize, setLogoSize] = useState({ width: 100, height: 100 });
+  const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0 });
+  const [isLogoSelected, setIsLogoSelected] = useState(false);
+  const logoRef = useRef(null); // 로고 이미지를 참조하기 위한 ref
 
   const bannerStyle = {
     width: `${width}px`,
     height: `${height}px`,
-    padding: `${padding}px`,
+    // padding: `${padding}px`,
     justifyContent: "center",
     backgroundColor: backgroundColor,
     display: "flex",
-    alignItems: alignItems,
+    // alignItems: alignItems,
     border: "1px solid #ccc",
     fontFamily: fontFamily,
     flexDirection: "column",
@@ -94,40 +96,36 @@ export default function Banner() {
     position: "relative"
   };
 
-  const titleStyle = {
-    fontSize: `${titleFontSize}px`,
-    color: titleColor,
-    fontWeight: "bold"
+  const handleClickOutside = (event) => {
+    if (logoRef.current && !logoRef.current.contains(event.target)) {
+      setIsLogoSelected(false); // 클릭한 영역이 로고가 아닐 경우 선택 해제
+    }
+
+    if (characterRef.current && !characterRef.current.contains(event.target)) {
+      setIsCharacterSelected(false); // 클릭한 영역이 캐릭터가 아닐 경우 선택 해제
+    }
+
+    if (imageRef.current && !imageRef.current.contains(event.target)) {
+      setIsImageSelected(false);
+    }
+
+    const isOutsideTitle = dragRefs.current.every(
+      (ref) => ref.current && !ref.current.contains(event.target)
+    );
+
+    if (isOutsideTitle) {
+      setClickedTitleIndex(null);
+    }
   };
 
-  const subtitleStyle = {
-    fontSize: `${subtitleFontSize}px`,
-    color: subtitleColor
-  };
-
-  const imageStyle = {
-    position: "absolute",
-    top: `${imagePositionY}px`,
-    left: `${imagePositionX}px`,
-    width: `${imageWidth}px`,
-    height: `${imageHeight}px`
-  };
-
-  const characterStyle = {
-    position: "absolute",
-    top: `${characterPositionY}px`,
-    left: `${characterPositionX}px`,
-    width: `${characterWidth}px`,
-    height: `${characterHeight}px`
-  };
-
-  const logoStyle = {
-    position: "absolute",
-    top: `${logoPositionY}px`,
-    left: `${logoPositionX}px`,
-    width: `${logoWidth}px`,
-    height: `${logoHeight}px`
-  };
+  useEffect(() => {
+    // 컴포넌트가 마운트될 때 클릭 이벤트 리스너 추가
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // 컴포넌트가 언마운트될 때 리스너 제거
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const changeKoreanToEnglish = async (param) => {
     const prom = param;
@@ -218,17 +216,11 @@ export default function Banner() {
 
   const selecteCharacter = (url) => {
     console.log("선택한url:: ", url);
-    // setSelectedImageUrl(url);
-    // setImageUrl(url);
-    // setImageHeight("300");
-    // setImageWidth("150");
-    setcharacterImg(url);
     setcharacterUrl(url);
   };
 
   const selectLogo = (url) => {
     console.log("로고:: ", url);
-    setLogoImg(url);
     setLogoUrl(url);
   };
 
@@ -372,235 +364,154 @@ export default function Banner() {
   const resetbutton = async () => {
     setWidth(600);
     setHeight(150);
-    setPadding(10);
     setBackgroundColor("#ffe157");
     setTitle("This is a banner!");
-    setSubtitle("This is a subtitle!");
     setTitleFontSize(16);
-    setSubtitleFontSize(12);
     setTitleColor("#000000");
-    setSubtitleColor("#000000");
-    setalignItems("center");
+    // setalignItems("center");
     setFontFamily("KBFGDisplay");
     setPrompt("");
+    // setPrompt2("")
 
     setImageUrl("");
     setSelectedImageUrl("");
     setcharacterUrl("");
-    setcharacterImg("");
     setLogoUrl("");
-    setLogoImg("");
-    setImageWidth(100);
-    setImageHeight(100);
-    setImagePositionX(0);
-    setImagePositionY(0);
+    setImagePosition({ x: 0, y: 0 });
+    setImageSize({ width: 100, height: 100 });
+    setCharacterPosition({ x: 0, y: 0 });
+    setCharacterSize({ width: 50, height: 50 });
+    setLogoPosition({ x: 0, y: 0 });
+    setLogoSize({ width: 50, height: 50 });
   };
 
   const example0set = async () => {
     setWidth(460);
     setHeight(150);
-    setPadding(30);
     setBackgroundColor("#ffe157");
     setTitle("KB 100세만족 연금보험 무배당");
-    setSubtitle("(100세보증형)");
     setTitleFontSize(18);
-    setSubtitleFontSize(14);
     setTitleColor("#000000");
-    setSubtitleColor("#000000");
-    setalignItems("start");
     setFontFamily("Arial");
     setPrompt("일러스트 형식으로 할아버지 할머니가 안고있는 모습");
 
     setImageUrl("");
     setSelectedImageUrl("");
     setcharacterUrl("");
-    setcharacterImg("");
     setLogoUrl("");
-    setLogoImg("");
-    setImageWidth(130);
-    setImageHeight(130);
-    setImagePositionX(310);
-    setImagePositionY(18);
-    setCharacterWidth(100);
-    setCharacterHeight(100);
-    setCharacterPositionX(300);
-    setCharacterPositionY(10);
-    setLogoWidth(80);
-    setLogoHeight(80);
-    setLogoPositionX(0);
-    setLogoPositionY(0);
+    setImagePosition({ x: 310, y: 18 });
+    setImageSize({ width: 130, height: 130 });
+    setCharacterPosition({ x: 0, y: 0 });
+    setCharacterSize({ width: 50, height: 50 });
+    setLogoPosition({ x: 0, y: 0 });
+    setLogoSize({ width: 50, height: 50 });
   };
 
   const example1set = async () => {
     console.log("mo.main.bottom");
     setWidth(960);
     setHeight(450);
-    setPadding(75);
     setBackgroundColor("#FDEFF4");
     setTitle("내 보험 찾기");
-    setSubtitle("잊고 있던 내 보험 찾고\n이마트 상품권도 받자");
     setTitleFontSize(45);
-    setSubtitleFontSize(44);
     setTitleColor("#F63D57");
-    setSubtitleColor("#000000");
-    setalignItems("start");
     setFontFamily("KBFGDisplay");
     setPrompt("");
 
     setImageUrl();
     setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
-    setcharacterImg(process.env.PUBLIC_URL + "/image48.png");
     setLogoUrl(process.env.PUBLIC_URL + "/logo4.png");
-    setLogoImg(process.env.PUBLIC_URL + "/logo4.png");
-    setCharacterWidth(150);
-    setCharacterHeight(270);
-    setCharacterPositionX(590);
-    setCharacterPositionY(125);
-    setImageWidth(130);
-    setImageHeight(130);
-    setImagePositionX(310);
-    setImagePositionY(18);
-    setLogoWidth(120);
-    setLogoHeight(120);
-    setLogoPositionX(0);
-    setLogoPositionY(0);
+    setImagePosition({ x: 310, y: 18 });
+    setImageSize({ width: 130, height: 130 });
+    setCharacterPosition({ x: 590, y: 125 });
+    setCharacterSize({ width: 150, height: 270 });
+    setLogoPosition({ x: 0, y: 0 });
+    setLogoSize({ width: 50, height: 50 });
   };
 
   const example2set = async () => {
     console.log("mo.online.main");
     setWidth(950);
     setHeight(600);
-    setPadding(75);
     setBackgroundColor("#FFCC00");
     setTitle("내 보험 찾기");
-    setSubtitle("잊고 있던 내 보험 찾고\n이마트 상품권도 받자");
     setTitleFontSize(62);
-    setSubtitleFontSize(56);
     setTitleColor("#F63D57");
-    setSubtitleColor("#000000");
-    setalignItems("start");
     setFontFamily("KBFGDisplay");
     setPrompt("");
 
     setImageUrl("");
     setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
-    setcharacterImg(process.env.PUBLIC_URL + "/image48.png");
     setLogoUrl(process.env.PUBLIC_URL + "/logo4.png");
-    setLogoImg(process.env.PUBLIC_URL + "/logo4.png");
-    setImageWidth(200);
-    setImageHeight(200);
-    setImagePositionX(400);
-    setImagePositionY(10);
-    setCharacterWidth(145);
-    setCharacterHeight(257);
-    setCharacterPositionX(667);
-    setCharacterPositionY(305);
-    setLogoWidth(120);
-    setLogoHeight(120);
-    setLogoPositionX(60);
-    setLogoPositionY(85);
+    setImagePosition({ x: 400, y: 10 });
+    setImageSize({ width: 200, height: 200 });
+    setCharacterPosition({ x: 667, y: 305 });
+    setCharacterSize({ width: 145, height: 257 });
+    setLogoPosition({ x: 0, y: 0 });
+    setLogoSize({ width: 50, height: 50 });
   };
 
   const example3set = async () => {
     setWidth(460);
     setHeight(150);
-    setPadding(35);
     setBackgroundColor("#FDEFF4");
     setTitle("내 보험 찾기");
-    setSubtitle("잊고 있던 내 보험 찾고\n이마트 상품권도 받자");
     setTitleFontSize(18);
-    setSubtitleFontSize(14);
     setTitleColor("#F63D57");
-    setSubtitleColor("#000000");
-    setalignItems("start");
     setFontFamily("KBFGDisplay");
     setPrompt("");
 
     setImageUrl("");
     setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
-    setcharacterImg(process.env.PUBLIC_URL + "/image48.png");
     setLogoUrl(process.env.PUBLIC_URL + "/logo5.png");
-    setLogoImg(process.env.PUBLIC_URL + "/logo5.png");
-    setImageWidth(100);
-    setImageHeight(100);
-    setImagePositionX(0);
-    setImagePositionY(0);
-    setCharacterWidth(70);
-    setCharacterHeight(110);
-    setCharacterPositionX(245);
-    setCharacterPositionY(30);
-    setLogoWidth(100);
-    setLogoHeight(70);
-    setLogoPositionX(320);
-    setLogoPositionY(45);
+    setImagePosition({ x: 0, y: 0 });
+    setImageSize({ width: 100, height: 100 });
+    setCharacterPosition({ x: 245, y: 30 });
+    setCharacterSize({ width: 70, height: 110 });
+    setLogoPosition({ x: 0, y: 0 });
+    setLogoSize({ width: 50, height: 50 });
   };
 
   const example4set = async () => {
     setWidth(960);
     setHeight(256);
-    setPadding(35);
     setBackgroundColor("#FDEFF4");
     setTitle("내 보험 찾기");
-    setSubtitle("잊고 있던 내 보험 찾고 이마트 상품권도 받자");
     setTitleFontSize(40);
-    setSubtitleFontSize(35);
     setTitleColor("#F63D57");
-    setSubtitleColor("#000000");
-    setalignItems("start");
     setFontFamily("KBFGDisplay");
     setPrompt("");
 
     setImageUrl("");
     setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
-    setcharacterImg(process.env.PUBLIC_URL + "/image48.png");
     setLogoUrl("");
-    setLogoImg("");
-    setImageWidth(100);
-    setImageHeight(100);
-    setImagePositionX(400);
-    setImagePositionY(10);
-    setCharacterWidth(84);
-    setCharacterHeight(160);
-    setCharacterPositionX(752);
-    setCharacterPositionY(78);
-    setLogoWidth(100);
-    setLogoHeight(100);
-    setLogoPositionX(0);
-    setLogoPositionY(0);
+    setImagePosition({ x: 400, y: 10 });
+    setImageSize({ width: 100, height: 100 });
+    setCharacterPosition({ x: 752, y: 78 });
+    setCharacterSize({ width: 84, height: 160 });
+    setLogoPosition({ x: 0, y: 0 });
+    setLogoSize({ width: 50, height: 50 });
   };
 
   const example5set = async () => {
     setWidth(566);
     setHeight(540);
-    setPadding(35);
     setBackgroundColor("#FDEFF4");
     setTitle("내 보험 찾기");
-    setSubtitle("잊고 있던 내 보험 찾고\n이마트 상품권도 받자");
     setTitleFontSize(40);
-    setSubtitleFontSize(35);
     setTitleColor("#F63D57");
-    setSubtitleColor("#000000");
-    setalignItems("start");
     setFontFamily("KBFGDisplay");
     setPrompt("");
 
     setImageUrl("");
     setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
-    setcharacterImg(process.env.PUBLIC_URL + "/image48.png");
     setLogoUrl("");
-    setLogoImg("");
-    setImageWidth(100);
-    setImageHeight(100);
-    setImagePositionX(390);
-    setImagePositionY(200);
-    setCharacterWidth(84);
-    setCharacterHeight(160);
-    setCharacterPositionX(395);
-    setCharacterPositionY(339);
-    setLogoWidth(120);
-    setLogoHeight(80);
-    setLogoPositionX(33);
-    setLogoPositionY(110);
+    setImagePosition({ x: 390, y: 200 });
+    setImageSize({ width: 100, height: 100 });
+    setCharacterPosition({ x: 395, y: 339 });
+    setCharacterSize({ width: 84, height: 160 });
+    setLogoPosition({ x: 0, y: 0 });
+    setLogoSize({ width: 50, height: 50 });
   };
 
   const handleImageChange = (e) => {
@@ -613,10 +524,6 @@ export default function Banner() {
     }
   };
 
-  // const handlePromptChange = (e) => {
-  //   setPrompt2(e.target.value);
-  // };
-
   const editImage = async () => {
     console.log("편집시작");
     setEditGenerating(true);
@@ -626,12 +533,33 @@ export default function Banner() {
     }
     console.log(prompt2);
     console.log(imageFile);
+
+    const convertToRGBA = async (imageFile) => {
+      const imageBitmap = await createImageBitmap(imageFile);
+      const canvas = document.createElement("canvas");
+      canvas.width = imageBitmap.width;
+      canvas.height = imageBitmap.height;
+
+      const ctx = canvas.getContext("2d", { alpha: true }); // 투명도 허용
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // 캔버스 초기화 후 투명도로 설정
+      ctx.drawImage(imageBitmap, 0, 0);
+
+      // RGBA 형식으로 변환된 Blob을 반환
+      return new Promise((resolve) => {
+        canvas.toBlob((blob) => resolve(blob), "image/png");
+      });
+    };
+
+    // imageFile을 RGBA로 변환
+    const rgbaImageFile = await convertToRGBA(imageFile);
+
     const formData = new FormData();
 
-    formData.append("image", imageFile); // 이미지 파일 추가
+    formData.append("image", rgbaImageFile); // 이미지 파일 추가
     formData.append("prompt", translatedPrompt); // 프롬프트 추가 (예: "해를 파란색으로 바꿔줘")
     formData.append("n", 1); // 생성할 이미지 개수 (1개)
     formData.append("size", "256x256"); // 이미지 크기
+    console.log("----------------------", formData);
 
     try {
       const response = await fetch("https://api.openai.com/v1/images/edits", {
@@ -645,12 +573,13 @@ export default function Banner() {
 
       const data = await response.json();
 
-      console.log("리턴받은url", data.data[0].url);
+      console.log("리턴받은url", data);
       setEditedImageUrl(data.data[0].url);
 
       setEditGenerating(false);
     } catch (error) {
       console.error("Error:", error);
+      alert(error);
       setEditGenerating(false);
     }
   };
@@ -684,6 +613,32 @@ export default function Banner() {
     }
   }, [imageUrl]); //이거하나로 ai생성들중 선택한것도 나오고 , imageurl 인풋에 직접입력한것도 나옴
 
+  const handleDragStopTitle = (e, data, index) => {
+    const updatedTitles = titles.map((title, i) =>
+      i === index ? { ...title, x: data.x, y: data.y } : title
+    );
+    setTitles(updatedTitles);
+  };
+
+  const handleAddTitle = () => {
+    const newTitle = {
+      text: title,
+      fontSize: titleFontSize,
+      fontFamily: fontFamily,
+      color: titleColor,
+      x: 0, // 초기 위치
+      y: 0 // 초기 위치
+    };
+
+    setTitles([...titles, newTitle]); // titles 배열에 새로운 타이틀 추가
+    setTitle(""); // 입력 필드 초기화
+  };
+
+  const handleRemoveTitle = (index) => {
+    const updatedTitles = titles.filter((_, i) => i !== index);
+    setTitles(updatedTitles); // 타이틀 업데이트
+  };
+
   const deleteContentButton = async () => {
     setImageUrl("");
     setSelectedImageUrl("");
@@ -691,150 +646,102 @@ export default function Banner() {
 
   const deletecharacterButton = async () => {
     setcharacterUrl("");
-    setcharacterImg("");
   };
 
   const deletelogoButton = async () => {
     setLogoUrl("");
-    setLogoImg("");
   };
 
-  console.log("현재이미지url :: ", imageUrl);
-  console.log("현재selectedurl :: ", selectedImageUrl);
-  // console.log("현재isCaptured :: ", isCaptured);
-  // console.log("프롬프트 :: ", prompt);
-  // console.log("프롬프트 :: ", alignItems);
-  // console.log("프롬프트 :: ", fontFamily);
+  // console.log("현재이미지url :: ", imageUrl);
 
   return (
     <div style={{ backgroundColor: "#f1edea" }}>
       <div className="wrap">
-        <form>
-          <h2 className="title">Banner</h2>
-          <div className="container">
-            <div className="box">
-              <label>Width </label>
-              <input
-                type="number"
-                value={width}
-                onChange={(e) => setWidth(e.target.value)}
-              />
-              <span>( px )</span>
-            </div>
-            <div className="box">
-              <label>Height </label>
-              <input
-                type="number"
-                value={height}
-                onChange={(e) => setHeight(e.target.value)}
-              />
-              <span>( px )</span>
-            </div>
-            <div className="box">
-              <label>Padding </label>
-              <input
-                type="number"
-                value={padding}
-                onChange={(e) => setPadding(e.target.value)}
-              />
-              <span>( px )</span>
-            </div>
-            <div>
-              <label>Background Color </label>
-              <input
-                type="color"
-                value={backgroundColor}
-                onChange={(e) => setBackgroundColor(e.target.value)}
-              />
-            </div>
+        <h2 className="title">Banner</h2>
+        <div className="container">
+          <div className="box">
+            <label>Width </label>
+            <input
+              type="number"
+              value={width}
+              onChange={(e) => setWidth(e.target.value)}
+            />
+            <span>( px )</span>
           </div>
-          <h2 className="title">Text</h2>
-          <div className="container">
-            <div className="box">
-              <label>Title</label>
-              <input
-                className="w100"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-            <div className="box">
-              <label className="sub_title">SubTitle</label>
-              <textarea
-                className="w100"
-                type="text"
-                value={subtitle}
-                onChange={(e) => setSubtitle(e.target.value)}
-              />
-            </div>
-            <div className="box">
-              <label>Title FontSize</label>
-              <input
-                type="number"
-                value={titleFontSize}
-                onChange={(e) => setTitleFontSize(e.target.value)}
-              />
-              <span>( px )</span>
-            </div>
+          <div className="box">
+            <label>Height </label>
+            <input
+              type="number"
+              value={height}
+              onChange={(e) => setHeight(e.target.value)}
+            />
+            <span>( px )</span>
+          </div>
+          <div>
+            <label>Background Color </label>
+            <input
+              type="color"
+              value={backgroundColor}
+              onChange={(e) => setBackgroundColor(e.target.value)}
+            />
+          </div>
+        </div>
+        <h2 className="title">Text</h2>
+        <div className="container">
+          <div className="box">
+            <label>Sentence</label>
+            <input
+              className="w100"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+          <div className="box">
+            <label>FontSize</label>
+            <input
+              type="number"
+              value={titleFontSize}
+              onChange={(e) => setTitleFontSize(e.target.value)}
+            />
+            <span>( px )</span>
+          </div>
+          <div className="box">
+            <label>Color</label>
+            <input
+              type="color"
+              value={titleColor}
+              onChange={(e) => setTitleColor(e.target.value)}
+            />
+          </div>
+          <div>
+            <label>Font</label>
+            <select
+              value={fontFamily}
+              onChange={(e) => setFontFamily(e.target.value)}
+            >
+              <option value="Arial">Arial</option>
+              <option value="Courier New">Courier New</option>
+              <option value="Georgia">Georgia</option>
+              <option value="Times New Roman">Times New Roman</option>
+              <option value="Verdana">Verdana</option>
+              <option value="KBFGDisplay">KBFG Display</option>
+            </select>
+          </div>
+        </div>
+        <div style={{ display: "flex" }}>
+          {" "}
+          {/* 버튼들을 가로로 배치 */}
+          <button type="button" onClick={handleAddTitle}>
+            Enter
+          </button>
+        </div>
+        <br></br>
 
-            <div className="box">
-              <label>Subtitle FontSize</label>
-              <input
-                type="number"
-                value={subtitleFontSize}
-                onChange={(e) => setSubtitleFontSize(e.target.value)}
-              />
-              <span>( px )</span>
-            </div>
-            <div className="box">
-              <label>Title Color</label>
-              <input
-                type="color"
-                value={titleColor}
-                onChange={(e) => setTitleColor(e.target.value)}
-              />
-            </div>
-            <div className="box">
-              <label>SubTitle Color</label>
-              <input
-                type="color"
-                value={subtitleColor}
-                onChange={(e) => setSubtitleColor(e.target.value)}
-              />
-            </div>
-            <div className="box">
-              <label>Text Align</label>
-              <select
-                value={alignItems}
-                onChange={(e) => setalignItems(e.target.value)}
-              >
-                <option value="start">Left</option>
-                <option value="center">Center</option>
-                <option value="flex-end">Right</option>
-              </select>
-            </div>
-            <div>
-              <label>Text Font</label>
-              <select
-                value={fontFamily}
-                onChange={(e) => setFontFamily(e.target.value)}
-              >
-                <option value="Arial">Arial</option>
-                <option value="Courier New">Courier New</option>
-                <option value="Georgia">Georgia</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Verdana">Verdana</option>
-                <option value="KBFGDisplay">KBFG Display</option>
-              </select>
-            </div>
-          </div>
-          <br></br>
-        </form>
         <h2 className="title">Image</h2>
         <br></br>
         <div className="form_box">
-          <label>Basic Image</label>
+          <label>Character Image</label>
           <div className="form_cont">
             <div
               style={{
@@ -878,48 +785,6 @@ export default function Banner() {
             </div>
           </div>
         </div>
-        <div className="container">
-          <div className="box">
-            <label>Character Width</label>
-            <input
-              type="number"
-              value={characterWidth}
-              onChange={(e) => setCharacterWidth(e.target.value)}
-            />
-            <span>( px )</span>
-          </div>
-          <div className="box">
-            <label>Character Height</label>
-            <input
-              type="number"
-              value={characterHeight}
-              onChange={(e) => setCharacterHeight(e.target.value)}
-            />
-            <span>( px )</span>
-          </div>
-          <div className="box">
-            <label>Character Position X</label>
-            <input
-              type="number"
-              value={characterPositionX}
-              onChange={(e) =>
-                setCharacterPositionX(parseFloat(e.target.value) || 0)
-              }
-            />
-            <span>( px )</span>
-          </div>
-          <div className="box">
-            <label>Character Position Y</label>
-            <input
-              type="number"
-              value={characterPositionY}
-              onChange={(e) =>
-                setCharacterPositionY(parseFloat(e.target.value) || 0)
-              }
-            />
-            <span>( px )</span>
-          </div>
-        </div>
         <br></br>
         <br></br>
 
@@ -950,7 +815,6 @@ export default function Banner() {
                         : "1px solid black",
                     cursor: "pointer"
                   }}
-                  onClick={() => selectLogo(process.env.PUBLIC_URL + path)}
                 >
                   <img
                     src={process.env.PUBLIC_URL + path}
@@ -975,48 +839,6 @@ export default function Banner() {
                 Delete
               </button>
             </div>
-          </div>
-        </div>
-        <div className="container">
-          <div className="box">
-            <label>Logo Width</label>
-            <input
-              type="number"
-              value={logoWidth}
-              onChange={(e) => setLogoWidth(e.target.value)}
-            />
-            <span>( px )</span>
-          </div>
-          <div className="box">
-            <label>Logo Height</label>
-            <input
-              type="number"
-              value={logoHeight}
-              onChange={(e) => setLogoHeight(e.target.value)}
-            />
-            <span>( px )</span>
-          </div>
-          <div className="box">
-            <label>Logo Position X</label>
-            <input
-              type="number"
-              value={logoPositionX}
-              onChange={(e) =>
-                setLogoPositionX(parseFloat(e.target.value) || 0)
-              }
-            />
-            <span>( px )</span>
-          </div>
-          <div className="box">
-            <label>Logo Position Y</label>
-            <input
-              type="number"
-              value={logoPositionY}
-              onChange={(e) =>
-                setLogoPositionY(parseFloat(e.target.value) || 0)
-              }
-            />
-            <span>( px )</span>
           </div>
         </div>
         <br></br>
@@ -1116,6 +938,7 @@ export default function Banner() {
             {editedImageUrl && (
               <div className="ml20">
                 <h2 className="title">Edit Images:</h2>
+
                 <img
                   src={editedImageUrl}
                   alt="Edited"
@@ -1133,62 +956,9 @@ export default function Banner() {
               </div>
             )}
           </div>
-
-          {/* 편집된 이미지가 있을 경우 화면에 출력 */}
-        </div>
-
-        <div className="container">
-          <div className="box">
-            <label>Image Width</label>
-            <input
-              type="number"
-              value={imageWidth}
-              onChange={(e) => setImageWidth(e.target.value)}
-            />
-            <span>( px )</span>
-          </div>
-          <div className="box">
-            <label>Image Height</label>
-            <input
-              type="number"
-              value={imageHeight}
-              onChange={(e) => setImageHeight(e.target.value)}
-            />
-            <span>( px )</span>
-          </div>
-          <div className="box">
-            <label>Image Position X</label>
-            <input
-              type="number"
-              value={imagePositionX}
-              onChange={(e) =>
-                setImagePositionX(parseFloat(e.target.value) || 0)
-              }
-            />
-            <span>( px )</span>
-          </div>
-          <div className="box">
-            <label>Image Position Y</label>
-            <input
-              type="number"
-              value={imagePositionY}
-              onChange={(e) =>
-                setImagePositionY(parseFloat(e.target.value) || 0)
-              }
-            />
-            <span>( px )</span>
-          </div>
-          <div className="box" style={{ borderBottom: "none" }}>
-            <label>Image URL</label>
-            <input
-              className="w100"
-              type="text"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-            />
-          </div>
         </div>
       </div>
+
       {/* Banner output */}
       <div className="banner_wrap">
         <button className="btn1" onClick={resetbutton}>
@@ -1196,38 +966,207 @@ export default function Banner() {
         </button>
         <h2 className="title">Preview</h2>
         <br />
-        <div id="customBanner" style={bannerStyle}>
-          <div style={titleStyle}>{title}</div>
-          {subtitle && (
-            <div style={{ ...subtitleStyle, whiteSpace: "pre-wrap" }}>
-              {subtitle}
+        <div
+          id="customBanner"
+          style={{ ...bannerStyle, position: "relative", overflow: "hidden" }}
+        >
+          {/* 타이틀 렌더링 */}
+          {title && (
+            <div
+              style={{
+                fontFamily: fontFamily,
+                fontSize: `${titleFontSize}px`,
+                color: titleColor,
+                position: "relative",
+                display: "inline-block"
+              }}
+            >
+              {title}
             </div>
           )}
+
+          {titles.map((title, index) => {
+            if (!dragRefs.current[index]) {
+              dragRefs.current[index] = React.createRef();
+            }
+
+            // 타이틀 스타일
+            const titleStyle = {
+              fontFamily: title.fontFamily,
+              fontSize: `${title.fontSize}px`,
+              color: title.color,
+              position: "relative",
+              display: "inline-block"
+            };
+
+            // defaultPosition을 사용하여 초기 위치 설정
+            const defaultPosition = { x: title.x || 0, y: title.y || 0 };
+
+            return (
+              <Draggable
+                nodeRef={dragRefs.current[index]}
+                key={index}
+                defaultPosition={defaultPosition} // defaultPosition 설정
+                onStop={(e, data) => handleDragStopTitle(e, data, index)} // 드래그 종료 시 위치 저장
+              >
+                <div
+                  ref={dragRefs.current[index]}
+                  className="main-title"
+                  style={{
+                    ...titleStyle
+                  }}
+                  onClick={() => setClickedTitleIndex(index)} // 타이틀 클릭 시 인덱스 저장
+                >
+                  {title.text}
+
+                  {/* x 버튼: 클릭된 타이틀에만 표시 */}
+                  {clickedTitleIndex === index && (
+                    <span
+                      className="remove-title"
+                      onClick={(e) => {
+                        e.stopPropagation(); // 부모 클릭 이벤트 막기
+                        handleRemoveTitle(index); // 타이틀 삭제
+                      }}
+                      style={{
+                        position: "absolute",
+                        top: "0px", // 타이틀의 오른쪽 위로 이동
+                        right: "0px", // 타이틀의 오른쪽 위로 이동
+                        background: "black",
+                        color: "white",
+                        cursor: "pointer",
+                        borderRadius: "50%",
+                        width: "20px", // 원형을 만들기 위한 너비
+                        height: "20px", // 원형을 만들기 위한 높이
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "12px", // 텍스트 크기 조정
+                        lineHeight: "1" // 텍스트가 세로로 정렬되도록 설정
+                      }}
+                    >
+                      x
+                    </span>
+                  )}
+                </div>
+              </Draggable>
+            );
+          })}
           {imageUrl && (
-            <Draggable>
-              <img
-                src={isCaptured ? imageUrl : selectedImageUrl}
-                alt="wrong img addr"
-                style={imageStyle}
-              />
+            <Draggable
+              position={imagePosition}
+              onStop={(e, data) => {
+                setImagePosition({ x: data.x, y: data.y });
+              }}
+            >
+              <Resizable
+                size={imageSize}
+                onResizeStop={(e, direction, ref, d) => {
+                  setImageSize({
+                    width: imageSize.width + d.width,
+                    height: imageSize.height + d.height
+                  });
+                }}
+              >
+                <div
+                  ref={imageRef} // 로고 이미지 컨테이너에 ref 설정
+                  onClick={() => setIsImageSelected((prev) => !prev)} // 클릭 시 선택 상태 토글
+                  style={{
+                    border: isImageSelected ? "3px solid red" : "",
+                    position: "absolute"
+                  }}
+                >
+                  <img
+                    src={isCaptured ? imageUrl : selectedImageUrl}
+                    alt="wrong img addr"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain", // 이미지 비율 유지
+                      display: "block" // 공백 제거
+                    }}
+                  />
+                </div>
+              </Resizable>
             </Draggable>
           )}
           {characterUrl && (
-            <Draggable>
-              <img
-                src={isCaptured ? characterUrl : characterImg}
-                alt="wrong img addr"
-                style={characterStyle}
-              />
+            <Draggable
+              position={characterPosition}
+              onStop={(e, data) => {
+                setCharacterPosition({ x: data.x, y: data.y });
+              }}
+            >
+              <Resizable
+                size={characterSize}
+                onResizeStop={(e, direction, ref, d) => {
+                  setCharacterSize({
+                    width: logoSize.width + d.width,
+                    height: logoSize.height + d.height
+                  });
+                }}
+              >
+                <div
+                  ref={characterRef} // 로고 이미지 컨테이너에 ref 설정
+                  onClick={() => setIsCharacterSelected((prev) => !prev)} // 클릭 시 선택 상태 토글
+                  style={{
+                    border: isCharacterSelected ? "3px solid red" : "",
+                    position: "absolute"
+                  }}
+                >
+                  <img
+                    src={characterUrl}
+                    alt="wrong img addr"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain", // 이미지 비율 유지
+                      display: "block" // 공백 제거
+                    }}
+                  />
+                </div>
+              </Resizable>
             </Draggable>
           )}
           {logoUrl && (
-            <Draggable>
-              <img
-                src={isCaptured ? logoUrl : logoImg}
-                alt="wrong img addr"
-                style={logoStyle}
-              />
+            <Draggable
+              position={logoPosition}
+              onStop={(e, data) => {
+                // 드래그 종료 후 최종 위치 저장
+                setLogoPosition({ x: data.x, y: data.y });
+              }}
+            >
+              <Resizable
+                size={logoSize}
+                onResizeStop={(e, direction, ref, d) => {
+                  // 크기 조절 종료 후 최종 크기 저장
+                  setLogoSize({
+                    width: logoSize.width + d.width,
+                    height: logoSize.height + d.height
+                  });
+                }}
+                // style={{ display: "inline-block" }}
+              >
+                <div
+                  ref={logoRef} // 로고 이미지 컨테이너에 ref 설정
+                  onClick={() => setIsLogoSelected((prev) => !prev)} // 클릭 시 선택 상태 토글
+                  style={{
+                    border: isLogoSelected ? "3px solid red" : "",
+                    position: "absolute"
+                  }}
+                >
+                  <img
+                    src={logoUrl}
+                    alt="wrong img addr"
+                    style={{
+                      // border: isLogoSelected ? "3px solid red" : "",
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "contain", // 이미지 비율 유지
+                      display: "block" // 공백 제거
+                    }}
+                  />
+                </div>
+              </Resizable>
             </Draggable>
           )}
         </div>
