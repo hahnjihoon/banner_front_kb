@@ -28,11 +28,9 @@ const logoPaths = [
 
 export default function Banner() {
   const [width, setWidth] = useState(600);
-  const [height, setHeight] = useState(150);
+  const [height, setHeight] = useState(500);
   const [backgroundColor, setBackgroundColor] = useState("#ffe157");
-  // const [padding, setPadding] = useState(10);
 
-  // const [alignItems, setalignItems] = useState("center");
   const [title, setTitle] = useState("This is a banner!");
   const [titleFontSize, setTitleFontSize] = useState(16);
   const [fontFamily, setFontFamily] = useState("KBFGDisplay");
@@ -58,14 +56,10 @@ export default function Banner() {
 
   const [imageUrl, setImageUrl] = useState("");
   const [selectedImageUrl, setSelectedImageUrl] = useState("");
-  // const [imageWidth, setImageWidth] = useState(100);
-  // const [imageHeight, setImageHeight] = useState(100);
-  // const [imagePositionX, setImagePositionX] = useState(500);
-  // const [imagePositionY, setImagePositionY] = useState(25);
   const [imageSize, setImageSize] = useState({ width: 100, height: 100 });
   const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
   const [isImageSelected, setIsImageSelected] = useState(false);
-  const imageRef = useRef(null); // 로고 이미지를 참조하기 위한 ref
+  const imageRef = useRef(null);
 
   const [characterUrl, setcharacterUrl] = useState("");
   const [logoUrl, setLogoUrl] = useState("");
@@ -76,22 +70,20 @@ export default function Banner() {
   const [characterPosition, setCharacterPosition] = useState({ x: 0, y: 0 });
   const [isCharacterSelected, setIsCharacterSelected] = useState(false);
   const characterRef = useRef(null);
-  const [logoSize, setLogoSize] = useState({ width: 100, height: 100 });
+  const [logoSize, setLogoSize] = useState({ width: 200, height: 200 });
   const [logoPosition, setLogoPosition] = useState({ x: 0, y: 0 });
   const [isLogoSelected, setIsLogoSelected] = useState(false);
-  const logoRef = useRef(null); // 로고 이미지를 참조하기 위한 ref
+  const logoRef = useRef(null);
 
   const bannerStyle = {
     width: `${width}px`,
     height: `${height}px`,
-    // padding: `${padding}px`,
     justifyContent: "center",
     backgroundColor: backgroundColor,
     display: "flex",
-    // alignItems: alignItems,
+    flexDirection: "column",
     border: "1px solid #ccc",
     fontFamily: fontFamily,
-    flexDirection: "column",
     boxSizing: "border-box",
     position: "relative"
   };
@@ -109,13 +101,13 @@ export default function Banner() {
       setIsImageSelected(false);
     }
 
-    const isOutsideTitle = dragRefs.current.every(
-      (ref) => ref.current && !ref.current.contains(event.target)
-    );
+    // const isOutsideTitle = dragRefs.current.every(
+    //   (ref) => ref.current && !ref.current.contains(event.target)
+    // );
 
-    if (isOutsideTitle) {
-      setClickedTitleIndex(null);
-    }
+    // if (isOutsideTitle) {
+    //   setClickedTitleIndex(null);
+    // }
   };
 
   useEffect(() => {
@@ -124,6 +116,23 @@ export default function Banner() {
     return () => {
       // 컴포넌트가 언마운트될 때 리스너 제거
       document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (
+        !e.target.closest(".main-title") &&
+        !e.target.closest(".draggable-icon") &&
+        !e.target.closest(".selected-img")
+      ) {
+        // 타이틀이나 아이콘 외부를 클릭한 경우
+        setClickedTitleIndex(null);
+      }
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
@@ -363,15 +372,14 @@ export default function Banner() {
 
   const resetbutton = async () => {
     setWidth(600);
-    setHeight(150);
+    setHeight(500);
     setBackgroundColor("#ffe157");
     setTitle("This is a banner!");
     setTitleFontSize(16);
     setTitleColor("#000000");
-    // setalignItems("center");
     setFontFamily("KBFGDisplay");
     setPrompt("");
-    // setPrompt2("")
+    setTitles([]);
 
     setImageUrl("");
     setSelectedImageUrl("");
@@ -386,13 +394,29 @@ export default function Banner() {
   };
 
   const example0set = async () => {
+    setTitles([]);
     setWidth(460);
     setHeight(150);
     setBackgroundColor("#ffe157");
-    setTitle("KB 100세만족 연금보험 무배당");
-    setTitleFontSize(18);
-    setTitleColor("#000000");
-    setFontFamily("Arial");
+    setTitle("");
+
+    const newTitle = {
+      text: "KB 100세만족 연금보험 무배당",
+      fontSize: 18,
+      fontFamily: "KBFGDisplay",
+      color: "#000000",
+      x: 20, // 초기 위치
+      y: 0
+    };
+    const newTitle2 = {
+      text: "(100세보증형)",
+      fontSize: 14,
+      fontFamily: "KBFGDisplay",
+      color: "#000000",
+      x: 20, // 초기 위치
+      y: 0
+    };
+    setTitles([...titles, newTitle, newTitle2]);
     setPrompt("일러스트 형식으로 할아버지 할머니가 안고있는 모습");
 
     setImageUrl("");
@@ -408,24 +432,50 @@ export default function Banner() {
   };
 
   const example1set = async () => {
-    console.log("mo.main.bottom");
     setWidth(960);
     setHeight(450);
     setBackgroundColor("#FDEFF4");
-    setTitle("내 보험 찾기");
-    setTitleFontSize(45);
-    setTitleColor("#F63D57");
-    setFontFamily("KBFGDisplay");
+
+    const newTitle = {
+      text: "내 보험 찾기",
+      fontSize: 50,
+      fontFamily: "KBFGDisplay",
+      color: "#F63D57",
+      x: 30, // 초기 위치
+      y: 90
+    };
+    const newTitle2 = {
+      text: "잊고 있던 내 보험 찾고",
+      fontSize: 48,
+      fontFamily: "KBFGDisplay",
+      color: "#000000",
+      x: 30, // 초기 위치
+      y: 100 // 초기 위치
+    };
+    const newTitle3 = {
+      text: "이마트 상품권도 받자",
+      fontSize: 48,
+      fontFamily: "KBFGDisplay",
+      color: "#000000",
+      x: 30, // 초기 위치
+      y: 110 // 초기 위치
+    };
+    setTitles([...titles, newTitle, newTitle2, newTitle3]);
+
+    setTitle("");
+    // setTitleFontSize(45);
+    // setTitleColor("#F63D57");
+    // setFontFamily("KBFGDisplay");
     setPrompt("");
 
     setImageUrl();
     setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
     setLogoUrl(process.env.PUBLIC_URL + "/logo4.png");
-    setImagePosition({ x: 310, y: 18 });
-    setImageSize({ width: 130, height: 130 });
-    setCharacterPosition({ x: 590, y: 125 });
+    setImagePosition({ x: 610, y: -51 });
+    setImageSize({ width: 120, height: 250 });
+    setCharacterPosition({ x: 590, y: -50 });
     setCharacterSize({ width: 150, height: 270 });
-    setLogoPosition({ x: 0, y: 0 });
+    setLogoPosition({ x: 30, y: -407 });
     setLogoSize({ width: 50, height: 50 });
   };
 
@@ -433,41 +483,87 @@ export default function Banner() {
     console.log("mo.online.main");
     setWidth(950);
     setHeight(600);
-    setBackgroundColor("#FFCC00");
-    setTitle("내 보험 찾기");
-    setTitleFontSize(62);
-    setTitleColor("#F63D57");
-    setFontFamily("KBFGDisplay");
+    setBackgroundColor("#FDEFF4");
+
+    const newTitle = {
+      text: "내 보험 찾기",
+      fontSize: 60,
+      fontFamily: "KBFGDisplay",
+      color: "#F63D57",
+      x: 77, // 초기 위치
+      y: 132
+    };
+    const newTitle2 = {
+      text: "잊고 있던 내 보험 찾고",
+      fontSize: 58,
+      fontFamily: "KBFGDisplay",
+      color: "#000000",
+      x: 77, // 초기 위치
+      y: 142 // 초기 위치
+    };
+    const newTitle3 = {
+      text: "이마트 상품권도 받자",
+      fontSize: 58,
+      fontFamily: "KBFGDisplay",
+      color: "#000000",
+      x: 77, // 초기 위치
+      y: 144 // 초기 위치
+    };
+    setTitles([...titles, newTitle, newTitle2, newTitle3]);
+    setTitle("");
     setPrompt("");
 
     setImageUrl("");
     setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
-    setLogoUrl(process.env.PUBLIC_URL + "/logo4.png");
+    setLogoUrl(process.env.PUBLIC_URL + "/logo1.png");
     setImagePosition({ x: 400, y: 10 });
     setImageSize({ width: 200, height: 200 });
-    setCharacterPosition({ x: 667, y: 305 });
-    setCharacterSize({ width: 145, height: 257 });
-    setLogoPosition({ x: 0, y: 0 });
-    setLogoSize({ width: 50, height: 50 });
+    setCharacterPosition({ x: 714, y: 33 });
+    setCharacterSize({ width: 150, height: 270 });
+    setLogoPosition({ x: 55, y: -467 });
+    setLogoSize({ width: 200, height: 100 });
   };
 
   const example3set = async () => {
     setWidth(460);
     setHeight(150);
     setBackgroundColor("#FDEFF4");
-    setTitle("내 보험 찾기");
-    setTitleFontSize(18);
-    setTitleColor("#F63D57");
-    setFontFamily("KBFGDisplay");
+
+    const newTitle = {
+      text: "내 보험 찾기",
+      fontSize: 20,
+      fontFamily: "KBFGDisplay",
+      color: "#F63D57",
+      x: 25,
+      y: 31
+    };
+    const newTitle2 = {
+      text: "잊고 있던 내 보험 찾고",
+      fontSize: 20,
+      fontFamily: "KBFGDisplay",
+      color: "#000000",
+      x: 25,
+      y: 32
+    };
+    const newTitle3 = {
+      text: "이마트 상품권도 받자",
+      fontSize: 20,
+      fontFamily: "KBFGDisplay",
+      color: "#000000",
+      x: 25,
+      y: 35
+    };
+    setTitles([...titles, newTitle, newTitle2, newTitle3]);
+    setTitle("");
     setPrompt("");
 
     setImageUrl("");
     setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
-    setLogoUrl(process.env.PUBLIC_URL + "/logo5.png");
+    setLogoUrl("");
     setImagePosition({ x: 0, y: 0 });
     setImageSize({ width: 100, height: 100 });
-    setCharacterPosition({ x: 245, y: 30 });
-    setCharacterSize({ width: 70, height: 110 });
+    setCharacterPosition({ x: 350, y: -38 });
+    setCharacterSize({ width: 50, height: 90 });
     setLogoPosition({ x: 0, y: 0 });
     setLogoSize({ width: 50, height: 50 });
   };
@@ -476,40 +572,86 @@ export default function Banner() {
     setWidth(960);
     setHeight(256);
     setBackgroundColor("#FDEFF4");
-    setTitle("내 보험 찾기");
-    setTitleFontSize(40);
-    setTitleColor("#F63D57");
-    setFontFamily("KBFGDisplay");
+
+    const newTitle = {
+      text: "내 보험 찾기",
+      fontSize: 40,
+      fontFamily: "KBFGDisplay",
+      color: "#F63D57",
+      x: 49,
+      y: 89
+    };
+    const newTitle2 = {
+      text: "잊고 있던 내 보험 찾고 이마트 상품권도 받자",
+      fontSize: 38,
+      fontFamily: "KBFGDisplay",
+      color: "#000000",
+      x: 52,
+      y: 85
+    };
+    setTitles([...titles, newTitle, newTitle2]);
+    setTitle("");
     setPrompt("");
 
     setImageUrl("");
     setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
-    setLogoUrl("");
-    setImagePosition({ x: 400, y: 10 });
+    setLogoUrl(process.env.PUBLIC_URL + "/logo1.png");
+    setImagePosition({ x: 700, y: -18 });
     setImageSize({ width: 100, height: 100 });
-    setCharacterPosition({ x: 752, y: 78 });
+    setCharacterPosition({ x: 775, y: -24 });
     setCharacterSize({ width: 84, height: 160 });
-    setLogoPosition({ x: 0, y: 0 });
-    setLogoSize({ width: 50, height: 50 });
+    setLogoPosition({ x: 30, y: -249 });
+    setLogoSize({ width: 194, height: 10 });
   };
 
   const example5set = async () => {
-    setWidth(566);
+    setWidth(966);
     setHeight(540);
     setBackgroundColor("#FDEFF4");
-    setTitle("내 보험 찾기");
-    setTitleFontSize(40);
-    setTitleColor("#F63D57");
-    setFontFamily("KBFGDisplay");
+
+    const newTitle = {
+      text: "내 보험 찾기",
+      fontSize: 70,
+      fontFamily: "KBFGDisplay",
+      color: "#F63D57",
+      x: 108,
+      y: 61
+    };
+    const newTitle2 = {
+      text: "잊고 있던 내 보험 찾고",
+      fontSize: 70,
+      fontFamily: "KBFGDisplay",
+      color: "#000000",
+      x: 109,
+      y: 67
+    };
+    const newTitle3 = {
+      text: "이마트 상품권도 받자",
+      fontSize: 70,
+      fontFamily: "KBFGDisplay",
+      color: "#000000",
+      x: 121,
+      y: 75
+    };
+    const newTitle4 = {
+      text: "찾았다",
+      fontSize: 30,
+      fontFamily: "KBFGDisplay",
+      color: "#F63D57",
+      x: 546,
+      y: 137
+    };
+    setTitles([...titles, newTitle, newTitle2, newTitle3, newTitle4]);
+    setTitle("");
     setPrompt("");
 
     setImageUrl("");
     setcharacterUrl(process.env.PUBLIC_URL + "/image48.png");
     setLogoUrl("");
-    setImagePosition({ x: 390, y: 200 });
+    setImagePosition({ x: 0, y: 0 });
     setImageSize({ width: 100, height: 100 });
-    setCharacterPosition({ x: 395, y: 339 });
-    setCharacterSize({ width: 84, height: 160 });
+    setCharacterPosition({ x: 639, y: 60 });
+    setCharacterSize({ width: 150, height: 250 });
     setLogoPosition({ x: 0, y: 0 });
     setLogoSize({ width: 50, height: 50 });
   };
@@ -729,11 +871,30 @@ export default function Banner() {
             </select>
           </div>
         </div>
-        <div style={{ display: "flex" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: "10px"
+          }}
+        >
           {" "}
           {/* 버튼들을 가로로 배치 */}
-          <button type="button" onClick={handleAddTitle}>
-            Enter
+          <button
+            type="button"
+            onClick={handleAddTitle}
+            style={{
+              width: "200px", // 버튼의 가로 크기
+              height: "50px", // 버튼의 세로 크기
+              backgroundColor: "#977a5e", // 버튼 색상 갈색으로 변경
+              color: "white", // 텍스트 색상
+              fontSize: "16px", // 글자 크기
+              border: "none", // 테두리 없앰
+              borderRadius: "5px", // 버튼에 약간의 둥근 모서리 추가
+              cursor: "pointer" // 마우스를 올리면 포인터로 변경
+            }}
+          >
+            배너에적용
           </button>
         </div>
         <br></br>
@@ -978,7 +1139,9 @@ export default function Banner() {
                 fontSize: `${titleFontSize}px`,
                 color: titleColor,
                 position: "relative",
-                display: "inline-block"
+                display: "inline-block",
+                width: "auto", // 텍스트 길이에 맞추기 위해 auto 사용
+                alignSelf: "flex-start"
               }}
             >
               {title}
@@ -996,7 +1159,9 @@ export default function Banner() {
               fontSize: `${title.fontSize}px`,
               color: title.color,
               position: "relative",
-              display: "inline-block"
+              display: "inline-block", // 텍스트 길이에 맞추기 위해 사용
+              width: "auto", // 텍스트 길이에 맞추기 위해 auto 사용
+              alignSelf: "flex-start" // 부모의 flex 영향을 받지 않도록 설정
             };
 
             // defaultPosition을 사용하여 초기 위치 설정
@@ -1030,13 +1195,13 @@ export default function Banner() {
                       style={{
                         position: "absolute",
                         top: "0px", // 타이틀의 오른쪽 위로 이동
-                        right: "0px", // 타이틀의 오른쪽 위로 이동
+                        right: "-20px", // 타이틀의 오른쪽 위로 이동
                         background: "black",
                         color: "white",
                         cursor: "pointer",
                         borderRadius: "50%",
-                        width: "20px", // 원형을 만들기 위한 너비
-                        height: "20px", // 원형을 만들기 위한 높이
+                        width: "15px", // 원형을 만들기 위한 너비
+                        height: "15px", // 원형을 만들기 위한 높이
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -1072,7 +1237,8 @@ export default function Banner() {
                   onClick={() => setIsImageSelected((prev) => !prev)} // 클릭 시 선택 상태 토글
                   style={{
                     border: isImageSelected ? "3px solid red" : "",
-                    position: "absolute"
+                    position: "relative",
+                    display: "inline-block"
                   }}
                 >
                   <img
@@ -1110,7 +1276,8 @@ export default function Banner() {
                   onClick={() => setIsCharacterSelected((prev) => !prev)} // 클릭 시 선택 상태 토글
                   style={{
                     border: isCharacterSelected ? "3px solid red" : "",
-                    position: "absolute"
+                    position: "relative",
+                    display: "inline-block"
                   }}
                 >
                   <img
@@ -1151,7 +1318,8 @@ export default function Banner() {
                   onClick={() => setIsLogoSelected((prev) => !prev)} // 클릭 시 선택 상태 토글
                   style={{
                     border: isLogoSelected ? "3px solid red" : "",
-                    position: "absolute"
+                    position: "relative",
+                    display: "inline-block"
                   }}
                 >
                   <img
@@ -1176,22 +1344,46 @@ export default function Banner() {
         <br></br>
         <br></br>
         <br></br>
-        <button className="btn1" onClick={example0set}>
+        <button
+          className="btn1"
+          onClick={example0set}
+          style={{ margin: "0 10px" }}
+        >
           Sample 0
         </button>
-        <button className="btn1" onClick={example1set}>
+        <button
+          className="btn1"
+          onClick={example1set}
+          style={{ margin: "0 10px" }}
+        >
           Sample 1
         </button>
-        <button className="btn1" onClick={example2set}>
+        <button
+          className="btn1"
+          onClick={example2set}
+          style={{ margin: "0 10px" }}
+        >
           Sample 2
         </button>
-        <button className="btn1" onClick={example3set}>
+        <button
+          className="btn1"
+          onClick={example3set}
+          style={{ margin: "0 10px" }}
+        >
           Sample 3
         </button>
-        <button className="btn1" onClick={example4set}>
+        <button
+          className="btn1"
+          onClick={example4set}
+          style={{ margin: "0 10px" }}
+        >
           Sample 4
         </button>
-        <button className="btn1" onClick={example5set}>
+        <button
+          className="btn1"
+          onClick={example5set}
+          style={{ margin: "0 10px" }}
+        >
           Sample 5
         </button>
       </div>
