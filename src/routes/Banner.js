@@ -388,12 +388,13 @@ export default function Banner() {
     setImagePosition({ x: 0, y: 0 });
     setImageSize({ width: 100, height: 100 });
     setCharacterPosition({ x: 0, y: 0 });
-    setCharacterSize({ width: 50, height: 50 });
+    setCharacterSize({ width: 200, height: 250 });
     setLogoPosition({ x: 0, y: 0 });
-    setLogoSize({ width: 50, height: 50 });
+    setLogoSize({ width: 150, height: 150 });
   };
 
   const example0set = async () => {
+    await resetbutton();
     setTitles([]);
     setWidth(460);
     setHeight(150);
@@ -416,7 +417,8 @@ export default function Banner() {
       x: 20, // 초기 위치
       y: 0
     };
-    setTitles([...titles, newTitle, newTitle2]);
+    // setTitles([...titles, newTitle, newTitle2]);
+    setTitles([newTitle, newTitle2]);
     setPrompt("일러스트 형식으로 할아버지 할머니가 안고있는 모습");
 
     setImageUrl("");
@@ -432,6 +434,7 @@ export default function Banner() {
   };
 
   const example1set = async () => {
+    await resetbutton();
     setWidth(960);
     setHeight(450);
     setBackgroundColor("#FDEFF4");
@@ -460,12 +463,10 @@ export default function Banner() {
       x: 30, // 초기 위치
       y: 110 // 초기 위치
     };
-    setTitles([...titles, newTitle, newTitle2, newTitle3]);
+    // setTitles([...titles, newTitle, newTitle2, newTitle3]);
+    setTitles([newTitle, newTitle2, newTitle3]);
 
     setTitle("");
-    // setTitleFontSize(45);
-    // setTitleColor("#F63D57");
-    // setFontFamily("KBFGDisplay");
     setPrompt("");
 
     setImageUrl();
@@ -480,7 +481,7 @@ export default function Banner() {
   };
 
   const example2set = async () => {
-    console.log("mo.online.main");
+    await resetbutton();
     setWidth(950);
     setHeight(600);
     setBackgroundColor("#FDEFF4");
@@ -509,7 +510,8 @@ export default function Banner() {
       x: 77, // 초기 위치
       y: 144 // 초기 위치
     };
-    setTitles([...titles, newTitle, newTitle2, newTitle3]);
+    // setTitles([...titles, newTitle, newTitle2, newTitle3]);
+    setTitles([newTitle, newTitle2, newTitle3]);
     setTitle("");
     setPrompt("");
 
@@ -525,6 +527,7 @@ export default function Banner() {
   };
 
   const example3set = async () => {
+    await resetbutton();
     setWidth(460);
     setHeight(150);
     setBackgroundColor("#FDEFF4");
@@ -553,7 +556,8 @@ export default function Banner() {
       x: 25,
       y: 35
     };
-    setTitles([...titles, newTitle, newTitle2, newTitle3]);
+    // setTitles([...titles, newTitle, newTitle2, newTitle3]);
+    setTitles([newTitle, newTitle2, newTitle3]);
     setTitle("");
     setPrompt("");
 
@@ -569,6 +573,7 @@ export default function Banner() {
   };
 
   const example4set = async () => {
+    await resetbutton();
     setWidth(960);
     setHeight(256);
     setBackgroundColor("#FDEFF4");
@@ -589,7 +594,8 @@ export default function Banner() {
       x: 52,
       y: 85
     };
-    setTitles([...titles, newTitle, newTitle2]);
+    // setTitles([...titles, newTitle, newTitle2]);
+    setTitles([newTitle, newTitle2]);
     setTitle("");
     setPrompt("");
 
@@ -605,6 +611,7 @@ export default function Banner() {
   };
 
   const example5set = async () => {
+    await resetbutton();
     setWidth(966);
     setHeight(540);
     setBackgroundColor("#FDEFF4");
@@ -641,7 +648,8 @@ export default function Banner() {
       x: 546,
       y: 137
     };
-    setTitles([...titles, newTitle, newTitle2, newTitle3, newTitle4]);
+    // setTitles([...titles, newTitle, newTitle2, newTitle3, newTitle4]);
+    setTitles([newTitle, newTitle2, newTitle3, newTitle4]);
     setTitle("");
     setPrompt("");
 
@@ -1251,6 +1259,33 @@ export default function Banner() {
                       display: "block" // 공백 제거
                     }}
                   />
+                  {isImageSelected === true && (
+                    <span
+                      className="remove-title"
+                      onClick={(e) => {
+                        e.stopPropagation(); // 부모 클릭 이벤트 막기
+                        deleteContentButton();
+                      }}
+                      style={{
+                        position: "absolute",
+                        top: "0px", // 타이틀의 오른쪽 위로 이동
+                        right: "-20px", // 타이틀의 오른쪽 위로 이동
+                        background: "black",
+                        color: "white",
+                        cursor: "pointer",
+                        borderRadius: "50%",
+                        width: "15px", // 원형을 만들기 위한 너비
+                        height: "15px", // 원형을 만들기 위한 높이
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "12px", // 텍스트 크기 조정
+                        lineHeight: "1" // 텍스트가 세로로 정렬되도록 설정
+                      }}
+                    >
+                      x
+                    </span>
+                  )}
                 </div>
               </Resizable>
             </Draggable>
@@ -1290,6 +1325,33 @@ export default function Banner() {
                       display: "block" // 공백 제거
                     }}
                   />
+                  {isCharacterSelected === true && (
+                    <span
+                      className="remove-title"
+                      onClick={(e) => {
+                        e.stopPropagation(); // 부모 클릭 이벤트 막기
+                        deletecharacterButton();
+                      }}
+                      style={{
+                        position: "absolute",
+                        top: "0px", // 타이틀의 오른쪽 위로 이동
+                        right: "-20px", // 타이틀의 오른쪽 위로 이동
+                        background: "black",
+                        color: "white",
+                        cursor: "pointer",
+                        borderRadius: "50%",
+                        width: "15px", // 원형을 만들기 위한 너비
+                        height: "15px", // 원형을 만들기 위한 높이
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "12px", // 텍스트 크기 조정
+                        lineHeight: "1" // 텍스트가 세로로 정렬되도록 설정
+                      }}
+                    >
+                      x
+                    </span>
+                  )}
                 </div>
               </Resizable>
             </Draggable>
@@ -1333,6 +1395,33 @@ export default function Banner() {
                       display: "block" // 공백 제거
                     }}
                   />
+                  {isLogoSelected === true && (
+                    <span
+                      className="remove-title"
+                      onClick={(e) => {
+                        e.stopPropagation(); // 부모 클릭 이벤트 막기
+                        deletelogoButton();
+                      }}
+                      style={{
+                        position: "absolute",
+                        top: "0px", // 타이틀의 오른쪽 위로 이동
+                        right: "-20px", // 타이틀의 오른쪽 위로 이동
+                        background: "black",
+                        color: "white",
+                        cursor: "pointer",
+                        borderRadius: "50%",
+                        width: "15px", // 원형을 만들기 위한 너비
+                        height: "15px", // 원형을 만들기 위한 높이
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "12px", // 텍스트 크기 조정
+                        lineHeight: "1" // 텍스트가 세로로 정렬되도록 설정
+                      }}
+                    >
+                      x
+                    </span>
+                  )}
                 </div>
               </Resizable>
             </Draggable>
