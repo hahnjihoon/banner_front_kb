@@ -1261,7 +1261,7 @@ export default function Banner() {
               display: "inline-block", // 텍스트 길이에 맞추기 위해 사용
               width: "auto", // 텍스트 길이에 맞추기 위해 auto 사용
               alignSelf: "flex-start", // 부모의 flex 영향을 받지 않도록 설정
-              fontWeight: titleBold ? "bold" : "normal"
+              fontWeight: title.bold ? "bold" : "normal"
             };
 
             // defaultPosition을 사용하여 초기 위치 설정
