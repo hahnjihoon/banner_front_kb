@@ -35,6 +35,7 @@ export default function Banner() {
   const [titleFontSize, setTitleFontSize] = useState(16);
   const [fontFamily, setFontFamily] = useState("KBFGDisplay");
   const [titleColor, setTitleColor] = useState("#000000");
+  const [titleBold, setTitleBold] = useState(false);
 
   const [titles, setTitles] = useState([title]);
   const dragRefs = useRef([]);
@@ -75,6 +76,11 @@ export default function Banner() {
   const [isLogoSelected, setIsLogoSelected] = useState(false);
   const logoRef = useRef(null);
 
+  // const [buttons, setButtons] = useState([]); // 버튼 리스트
+  // const [newButtonText, setNewButtonText] = useState(""); // 버튼에 넣을 텍스트
+  // const [newButtonShape, setNewButtonShape] = useState("square"); // 모양 선택 (square, circle)
+  // const [newButtonLink, setNewButtonLink] = useState(""); // 버튼에 넣을 링크
+
   const bannerStyle = {
     width: `${width}px`,
     height: `${height}px`,
@@ -100,14 +106,6 @@ export default function Banner() {
     if (imageRef.current && !imageRef.current.contains(event.target)) {
       setIsImageSelected(false);
     }
-
-    // const isOutsideTitle = dragRefs.current.every(
-    //   (ref) => ref.current && !ref.current.contains(event.target)
-    // );
-
-    // if (isOutsideTitle) {
-    //   setClickedTitleIndex(null);
-    // }
   };
 
   useEffect(() => {
@@ -776,6 +774,7 @@ export default function Banner() {
       fontSize: titleFontSize,
       fontFamily: fontFamily,
       color: titleColor,
+      bold: titleBold,
       x: 0, // 초기 위치
       y: 0 // 초기 위치
     };
@@ -801,6 +800,33 @@ export default function Banner() {
   const deletelogoButton = async () => {
     setLogoUrl("");
   };
+
+  // const handleDragStopButton = (e, data, index) => {
+  //   const updatedButtons = buttons.map((button, i) =>
+  //     i === index ? { ...button, x: data.x, y: data.y } : button
+  //   );
+  //   setButtons(updatedButtons);
+  // };
+
+  // const handleAddButton = () => {
+  //   const newButton = {
+  //     text: newButtonText,
+  //     shape: newButtonShape,
+  //     link: newButtonLink,
+  //     x: 0,
+  //     y: 0,
+  //     width: 150,
+  //     height: 50
+  //   };
+  //   setButtons([...buttons, newButton]);
+  //   setNewButtonText(""); // 입력 필드 초기화
+  //   setNewButtonLink(""); // 링크 필드 초기화
+  // };
+
+  // const handleRemoveButton = (index) => {
+  //   const updatedButtons = buttons.filter((_, i) => i !== index);
+  //   setButtons(updatedButtons);
+  // };
 
   // console.log("현재이미지url :: ", imageUrl);
 
@@ -864,7 +890,7 @@ export default function Banner() {
               onChange={(e) => setTitleColor(e.target.value)}
             />
           </div>
-          <div>
+          <div className="box">
             <label>Font</label>
             <select
               value={fontFamily}
@@ -877,6 +903,14 @@ export default function Banner() {
               <option value="Verdana">Verdana</option>
               <option value="KBFGDisplay">KBFG Display</option>
             </select>
+          </div>
+          <div className="box">
+            <label>Bold</label>
+            <input
+              type="checkbox"
+              checked={titleBold}
+              onChange={(e) => setTitleBold(e.target.checked)}
+            />
           </div>
         </div>
         <div
@@ -905,6 +939,62 @@ export default function Banner() {
             배너에적용
           </button>
         </div>
+        {/* <h2 className="title">Button</h2>
+        
+        <div className="container">
+          <div className="box">
+            <label>버튼에 넣을 글자:</label>
+            <input
+              type="text"
+              value={newButtonText}
+              onChange={(e) => setNewButtonText(e.target.value)}
+            />
+          </div>
+          
+          <div className="box">
+            <label>버튼 링크(URL):</label>
+            <input
+              type="text"
+              value={newButtonLink}
+              onChange={(e) => setNewButtonLink(e.target.value)}
+            />
+          </div>
+          
+          <div className="box">
+            <label>버튼 모양:</label>
+            <select
+              value={newButtonShape}
+              onChange={(e) => setNewButtonShape(e.target.value)}
+            >
+              <option value="square">Rectangle</option>
+              <option value="circle">Circle</option>
+            </select>
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: "10px"
+          }}
+        >
+          <button
+            type="button"
+            onClick={handleAddButton}
+            style={{
+              width: "200px", // 버튼의 가로 크기
+              height: "50px", // 버튼의 세로 크기
+              backgroundColor: "#977a5e", // 버튼 색상 갈색으로 변경
+              color: "white", // 텍스트 색상
+              fontSize: "16px", // 글자 크기
+              border: "none", // 테두리 없앰
+              borderRadius: "5px", // 버튼에 약간의 둥근 모서리 추가
+              cursor: "pointer" // 마우스를 올리면 포인터로 변경
+            }}
+          >
+            버튼추가
+          </button>
+        </div> */}
         <br></br>
 
         <h2 className="title">Image</h2>
@@ -1149,7 +1239,8 @@ export default function Banner() {
                 position: "relative",
                 display: "inline-block",
                 width: "auto", // 텍스트 길이에 맞추기 위해 auto 사용
-                alignSelf: "flex-start"
+                alignSelf: "flex-start",
+                fontWeight: titleBold ? "bold" : "normal"
               }}
             >
               {title}
@@ -1169,7 +1260,8 @@ export default function Banner() {
               position: "relative",
               display: "inline-block", // 텍스트 길이에 맞추기 위해 사용
               width: "auto", // 텍스트 길이에 맞추기 위해 auto 사용
-              alignSelf: "flex-start" // 부모의 flex 영향을 받지 않도록 설정
+              alignSelf: "flex-start", // 부모의 flex 영향을 받지 않도록 설정
+              fontWeight: titleBold ? "bold" : "normal"
             };
 
             // defaultPosition을 사용하여 초기 위치 설정
@@ -1426,6 +1518,98 @@ export default function Banner() {
               </Resizable>
             </Draggable>
           )}
+          {/* {buttons && (
+            <a
+              href={newButtonLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "block",
+                // width: "100%",
+                // height: "100%",
+                textAlign: "center",
+                // lineHeight: `50px`,
+                textDecoration: "none",
+                backgroundColor: "#977a5e",
+                color: "white",
+                borderRadius: newButtonShape === "circle" ? "50%" : "0",
+                fontSize: "16px",
+                position: "relative",
+                cursor: "pointer"
+              }}
+            >
+              {newButtonText}
+            </a>
+          )} */}
+
+          {/* {buttons.map((button, index) => (
+            <Draggable
+              key={index}
+              defaultPosition={{ x: button.x, y: button.y }}
+              onStop={(e, data) => handleDragStopButton(e, data, index)}
+            >
+              <Resizable
+                size={{ width: button.width, height: button.height }}
+                onResizeStop={(e, direction, ref, d) => {
+                  const updatedButtons = buttons.map((btn, i) =>
+                    i === index
+                      ? {
+                          ...btn,
+                          width: btn.width + d.width,
+                          height: btn.height + d.height
+                        }
+                      : btn
+                  );
+                  setButtons(updatedButtons);
+                }}
+              >
+                <a
+                  href={button.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    height: "100%",
+                    textAlign: "center",
+                    lineHeight: `${button.height}px`,
+                    textDecoration: "none",
+                    backgroundColor: "#977a5e",
+                    color: "white",
+                    borderRadius: button.shape === "circle" ? "50%" : "0",
+                    fontSize: "16px",
+                    position: "relative",
+                    cursor: "pointer"
+                  }}
+                >
+                  {button.text}
+                  
+                  <span
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleRemoveButton(index);
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: "-10px",
+                      right: "-10px",
+                      background: "black",
+                      color: "white",
+                      borderRadius: "50%",
+                      width: "20px",
+                      height: "20px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      cursor: "pointer"
+                    }}
+                  >
+                    x
+                  </span>
+                </a>
+              </Resizable>
+            </Draggable>
+          ))} */}
         </div>
         <button className="btn" disabled={saving} onClick={saveCustomBanner}>
           {saving ? "Saving Now..." : "Save"}
